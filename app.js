@@ -134,8 +134,9 @@
     return st;
   }
   function levelInfo(exp) {
-    let lv = 1, need = 100, rest = exp;
-    while (rest >= need) { rest -= need; lv += 1; need = 100 + (lv - 1) * 50; }
+    // 每级所需经验：50, 75, 100, 125…（第 n 级升下一级要 25 + 25n）
+    let lv = 1, need = 50, rest = exp;
+    while (rest >= need) { rest -= need; lv += 1; need = 50 + (lv - 1) * 25; }
     return { lv, cur: rest, need };
   }
   const W = window.HirelootWeapons;
