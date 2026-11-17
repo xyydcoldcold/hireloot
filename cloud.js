@@ -418,11 +418,24 @@
 
     window.addEventListener('online', () => { if (user) { if (readMeta().dirty) push(); else pull(); } });
     window.addEventListener('offline', () => { if (user) setStatus('offline'); });
-    // 切回这个标签页时看看别的设备有没有改过
+    // 看看别的设备有没有改过：切回标签页、窗口重新获得焦点（并排开着的窗口不会触发 visibilitychange），
+    // 以及页面开着时每 30 秒一次。正在打字或者弹窗开着时先不拉，免得打断
+    let lastPull = 0;
+    const freshPull = () => {
+      if (!user || pushing || document.visibilityState !== 'visible') return;
+      const a = document.activeElement;
+      if (a && a.tagName === 'INPUT' && a.value) return;
+      if (!$('#auth').hidden) return;
+      if (Date.now() - lastPull < 5000) return;
+      lastPull = Date.now();
+      pull();
+    };
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && user && !pushing) pull();
-      else if (document.visibilityState === 'hidden' && user && readMeta().dirty) { clearTimeout(pushTimer); push(); }
+      if (document.visibilityState === 'visible') freshPull();
+      else if (user && readMeta().dirty) { clearTimeout(pushTimer); push(); }
     });
+    window.addEventListener('focus', freshPull);
+    setInterval(freshPull, 30000);
   }
 
   window.HirelootCloud = {
