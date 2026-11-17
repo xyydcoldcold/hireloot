@@ -2,6 +2,14 @@
 (function () {
   'use strict';
 
+  // 旧名字 JobQuest 时期的存档，第一次打开时自动搬过来
+  try {
+    for (const k of ['v1', 'lang', 'tab']) {
+      const old = localStorage.getItem('jobquest.' + k);
+      if (old !== null && localStorage.getItem('hireloot.' + k) === null) localStorage.setItem('hireloot.' + k, old);
+    }
+  } catch (e) { /* ignore */ }
+
   // ============ 规则配置（想改数值就改这里） ============
   // none = 默认无分类：普通待办，不加属性
   // 文字（名称、说明）在 i18n.js 里
@@ -50,13 +58,6 @@
 
   // ============ 存储 ============
   const STORE_KEY = 'hireloot.v1';
-  // 旧名字 JobQuest 时期的存档，第一次打开时自动搬过来
-  try {
-    for (const k of ['v1', 'lang', 'tab']) {
-      const old = localStorage.getItem('jobquest.' + k);
-      if (old !== null && localStorage.getItem('hireloot.' + k) === null) localStorage.setItem('hireloot.' + k, old);
-    }
-  } catch (e) { /* ignore */ }
   function emptyState() { return { version: 1, tasks: [], interviews: [] }; }
   function load() {
     try {
@@ -270,11 +271,12 @@
     $('#hero').innerHTML = `
       <div class="hero-top">
         <div class="avatar">${heroSprite(st)}</div>
-        <div>
-          <div class="lv">Lv.${st.lv}</div>
-          <div class="title">${titleName(st.lv)}</div>
+        <div class="lv-box">
+          <small>LEVEL</small>
+          <div class="lv">${st.lv}</div>
         </div>
       </div>
+      <div class="title"><span>${esc(titleName(st.lv))}</span></div>
       <div class="bar-label"><span>EXP</span><span>${st.cur} / ${st.need}</span></div>
       <div class="bar"><i style="width:${(st.cur / st.need * 100).toFixed(1)}%"></i></div>
       <ul class="stats">

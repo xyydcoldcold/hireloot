@@ -150,7 +150,6 @@ h2::before { content: "▶"; color: var(--gold); font-size: var(--s); margin-rig
 .avatar svg { position: relative; z-index: 1; display: block; animation: bob 1.2s steps(2) infinite; }
 @keyframes bob { 50% { transform: translateY(-4px); } }
 .lv { font-size: 36px; line-height: 1; color: var(--gold); text-shadow: 3px 3px 0 var(--gold-dk), 5px 5px 0 var(--edge); }
-.title { font-size: var(--m); margin-top: 10px; padding: 2px 8px; background: var(--edge); display: inline-block; }
 .bar-label { display: flex; justify-content: space-between; font-size: var(--s); color: var(--muted); margin-bottom: 4px; }
 .bar { height: 20px; border: 3px solid var(--edge); background: #0a0a20; box-shadow: inset 0 3px 0 rgba(0,0,0,.4); }
 .bar > i {
@@ -370,5 +369,16 @@ details[open] > summary::before { transform: rotate(90deg); }
 .lang-btn.active { background: var(--gold); color: var(--edge); text-shadow: none; }
 .hint:empty { display: none; }
 @media (prefers-reduced-motion: reduce) { .gear:hover .ico { animation: none; } }
-.hero-top > div:last-child { min-width: 0; }
-.title { max-width: 100%; }
+
+/* 等级 + 称号缎带 */
+.lv-box { flex: 1; min-width: 0; text-align: center; }
+.lv-box small { display: block; font-size: var(--s); color: var(--muted); letter-spacing: 3px; margin-bottom: 6px; }
+.lv-box .lv { font-size: 36px; }
+.title {
+  position: relative; margin: 0 0 18px; padding: 6px 30px 8px; text-align: center;
+  font-size: var(--m); line-height: 1.3; color: var(--edge);
+  background: var(--gold);
+  box-shadow: inset 0 3px 0 #ffe79a, inset 0 -4px 0 var(--gold-dk);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%);
+}
+.title span::before, .title span::after { content: "✦"; font-size: var(--s); color: var(--gold-dk); margin: 0 10px; vertical-align: 2px; }
