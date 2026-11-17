@@ -763,6 +763,10 @@ body.no-scroll { overflow: hidden; }
 .sync-offline, .sync-error { color: var(--red) !important; }
 .auth-modal .modal-win { width: min(420px, 100%); }
 .auth-tabs { margin-bottom: 16px; }
+.auth-head-r { display: flex; align-items: center; gap: 12px; }
+.auth-lang { gap: 4px; }
+.auth-lang button { font-size: var(--s); padding: 3px 8px; }
+.auth-lang button.active { background: var(--gold); color: var(--edge); text-shadow: none; }
 .auth-tabs button { flex: 1; font-size: var(--m); padding: 8px 14px; }
 .auth-tabs button.active { background: var(--gold); color: var(--edge); text-shadow: none; }
 .auth-form { display: flex; flex-direction: column; gap: 14px; }

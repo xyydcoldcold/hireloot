@@ -190,7 +190,10 @@
 
   function modalHtml() {
     const esc = H.esc;
-    const head = (title, closable = true) => `<div class="panel-head"><h2 id="auth-title">${esc(title)}</h2>${closable ? `<button class="del" data-act="auth-close" aria-label="${esc(t('settings.close'))}">✕</button>` : ''}</div>`;
+    const lang = H.getLang();
+    const langSeg = `<div class="seg auth-lang">${[['zh', '中文'], ['en', 'EN']].map(([l, label]) =>
+      `<button type="button" class="${l === lang ? 'active' : ''}" data-act="lang" data-lang="${l}" aria-pressed="${l === lang}">${label}</button>`).join('')}</div>`;
+    const head = (title, closable = true) => `<div class="panel-head"><h2 id="auth-title">${esc(title)}</h2><div class="auth-head-r">${langSeg}${closable ? `<button class="del" data-act="auth-close" aria-label="${esc(t('settings.close'))}">✕</button>` : ''}</div></div>`;
     if (mode === 'conflict') {
       const c = summary(conflict.cloud.data), l = summary(H.getState());
       return `${head(t('cloud.conflict.title'), false)}
@@ -385,6 +388,18 @@
   window.HirelootCloud = {
     init, onSave,
     enabled: () => enabled,
-    rerender() { renderAccount(); const el = $('#auth'); if (el && !el.hidden) openModal(); }
+    rerender() {
+      renderAccount();
+      const el = $('#auth');
+      if (!el || el.hidden) return;
+      // 换语言时保留已经输入的内容
+      const vals = {};
+      el.querySelectorAll('input[name]').forEach((i) => { vals[i.name] = i.value; });
+      if (vals.email !== undefined) lastEmail = vals.email.trim();
+      el.querySelector('.modal-win').innerHTML = modalHtml();
+      el.querySelectorAll('input[name]').forEach((i) => { if (vals[i.name] !== undefined) i.value = vals[i.name]; });
+      const b = el.querySelector('.auth-lang .active');
+      if (b) b.focus();
+    }
   };
 })();
