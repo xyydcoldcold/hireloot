@@ -4,10 +4,11 @@
 
 **一个像素游戏风格的待办清单，让找工作的每一份努力都算数。**
 
+### ▶ [立即开玩：hireloot.com](https://hireloot.com)
+
 <a href="README.md"><img src="docs/btn-en.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh-active.png" alt="简体中文" height="38"></a>
 
 <img alt="无需安装" src="https://img.shields.io/badge/%E5%AE%89%E8%A3%85-%E6%97%A0%E9%9C%80-ffcf4a?style=flat-square">
-<a href="https://hireloot.com"><img alt="在线玩 hireloot.com" src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E7%8E%A9-hireloot.com-3ddc97?style=flat-square"></a>
 <img alt="云存档或本地" src="https://img.shields.io/badge/%E5%AD%98%E6%A1%A3-%E4%BA%91%E7%AB%AF%E6%88%96%E6%9C%AC%E5%9C%B0-c77dff?style=flat-square">
 <img alt="中英文" src="https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%E6%96%87_%7C_EN-4ea8de?style=flat-square">
 
@@ -40,18 +41,6 @@ Offer 什么时候来，你决定不了。但每天坚持出现，你可以。Hi
 **5. 回头看看。** 冒险日志按天归档每一个完成的任务。在没有进展的那几周，你能看到自己其实做了多少。
 
 ![Boss 战](docs/zh-boss.png)
-
-## 开始游戏
-
-**直接在浏览器里玩：[hireloot.com](https://hireloot.com)**
-
-用邮箱和密码注册，存档就保存在云端，电脑和手机都能接着玩。暂时不想注册，可以选 **游客试玩**：存档只留在这个浏览器里，之后第一次登录时会自动搬进账号。
-
-建议加个书签，每天早上打开。
-
-右上角的 ⚙ 按钮可以切换中文 / English，查看账号和同步状态，也可以导出、导入存档。
-
-想完全离线玩？下载这个仓库（绿色 **Code** 按钮 → **Download ZIP**），用浏览器打开 `index.html`。没联网时游戏纯本地运行，进度只保存在这个浏览器的本地存储里。
 
 ## 想自己改？
 
