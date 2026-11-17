@@ -27,21 +27,15 @@ You can't control when the offer comes. You can control showing up every day. Hi
 
 ## How to play
 
-**1. Accept today's quests.** Write down what you plan to do today. A task starts as *Uncategorized*. If it counts as job-hunt effort, file it under one of five types:
-
-| Effort | Reward per quest | What it grows |
-| --- | --- | --- |
-| ⚔ Project | +3 ATK, +20 EXP | Builds ATK (weapons come from level-up packs) |
-| 🛡 Resume | +3 DEF, +15 EXP | Your armor: Cloth → Leather → … → Dragon Scale |
-| ✉ Applications | +30 EXP | The fastest way to level up |
-| ❤ Networking | +2 CHA, +1 Ally, +15 EXP | Every conversation recruits an ally |
-| 📖 Interview Prep | +3 INT, +15 EXP | Bonus EXP in every boss fight |
+**1. Accept today's quests.** Write down what you plan to do today. A task starts as *Uncategorized*. If it counts as job-hunt effort, file it under Project, Resume, Applications, Networking or Interview Prep, and finishing it grows the matching stats and EXP.
 
 **2. Check them off.** Rewards land right away. Anything you don't finish carries over to tomorrow, marked with how many days it's been waiting. No guilt, just a reminder.
 
 **3. Fight bosses.** Log each interview with the company and round. Pass it and you earn +100 EXP and 50 gold. Fail it and you still walk away with +40 EXP, because every interview teaches you something. Don't know the result yet? Log it as *Pending* and settle it later.
 
 **4. Level up, open packs.** Every level-up gives you 3 weapon packs. Tear one open to reveal a weapon: Common, Rare, Epic or Legendary, and the Epic and Legendary cards are holographic. The Armory holds all 37 weapons, and the ones you haven't found yet show only a black silhouette and "???". Duplicates add stars. Equip your favorite and your hero carries it.
+
+![Armory](docs/en-armory.png)
 
 **5. Look back.** The Adventure Log files every finished quest by day, so on the slow weeks you can see how much you've actually done.
 
