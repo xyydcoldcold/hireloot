@@ -60,7 +60,7 @@ Hireloot 可以作为静态网页部署（比如 GitHub Pages），用 [Supabase
 
 1. 在 Supabase 新建一个项目。
 2. 打开项目的 **SQL Editor**，把 [`supabase/schema.sql`](supabase/schema.sql) 整段粘进去运行。它会建 `saves` 表（每个用户一行 JSON 存档），并打开行级安全，每个人只能读写自己那一行。
-3. 打开 **Project Settings → API**，把 `Project URL` 和 `anon public` key 填进 [`config.js`](config.js)。anon key 是公开 key，可以提交到仓库；**千万不要填 `service_role` key**。
+3. 把项目网址（项目首页顶部 **Connect** 按钮里，形如 `https://xxxx.supabase.co`）和 **Project Settings → API Keys** 里的 **Publishable key**（`sb_publishable_` 开头，旧项目叫 `anon` key）填进 [`config.js`](config.js)。这是公开 key，可以提交到仓库；**千万不要填 Secret key 或 `service_role` key**。
 4. 打开 **Authentication → URL Configuration**，把 **Site URL** 设成你的网址（例如 `https://你的用户名.github.io/hireloot/`），并加进 **Redirect URLs**。注册确认邮件和找回密码邮件里的链接会跳回这里。
 5. 部署：仓库 **Settings → Pages**，Source 选 `main` 分支根目录，保存后等一两分钟即可访问。
 

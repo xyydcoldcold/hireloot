@@ -60,7 +60,7 @@ Hireloot can be hosted as a static site (for example on GitHub Pages), with [Sup
 
 1. Create a project on Supabase.
 2. Open the project's **SQL Editor**, paste in all of [`supabase/schema.sql`](supabase/schema.sql) and run it. It creates the `saves` table (one JSON save per user) and turns on row-level security, so each player can only read and write their own row.
-3. Open **Project Settings → API** and copy the `Project URL` and the `anon public` key into [`config.js`](config.js). The anon key is meant to be public and is safe to commit. **Never put the `service_role` key there.**
+3. Copy the project URL (from the **Connect** button at the top of the project page, like `https://xxxx.supabase.co`) and the **Publishable key** from **Project Settings → API Keys** (starts with `sb_publishable_`; older projects call it the `anon` key) into [`config.js`](config.js). It is meant to be public and is safe to commit. **Never put the Secret key or the `service_role` key there.**
 4. Open **Authentication → URL Configuration**, set **Site URL** to your site's address (for example `https://your-name.github.io/hireloot/`) and add it to **Redirect URLs**. Links in confirmation and password-reset emails lead back there.
 5. Deploy: in the repository go to **Settings → Pages**, pick the `main` branch root as the source, and save. The site is live a minute or two later.
 
