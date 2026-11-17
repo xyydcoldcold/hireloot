@@ -70,6 +70,9 @@ window.JQ_I18N = {
     'armors': ['布衣', '皮甲', '锁子甲', '板甲', '秘银甲', '龙鳞甲'],
     'titles': ['求职新手', '简历学徒', '投递骑士', '面试斗士', 'Offer 猎人', '职场勇者', '传说打工人'],
 
+    'hero.rename': '给角色起名字',
+    'hero.noName': '无名勇者',
+    'hero.namePh': '最多 12 个字',
     'hero.weapon': '武器',
     'hero.noWeapon': '赤手空拳',
     'hero.armor': '防具',
@@ -239,6 +242,9 @@ window.JQ_I18N = {
     'armors': ['Cloth', 'Leather', 'Chainmail', 'Plate', 'Mithril Mail', 'Dragon Scale'],
     'titles': ['Rookie', 'Resume Apprentice', 'Application Knight', 'Interview Fighter', 'Offer Hunter', 'Career Hero', 'Legend'],
 
+    'hero.rename': 'Name your hero',
+    'hero.noName': 'Nameless Hero',
+    'hero.namePh': 'Up to 12 characters',
     'hero.weapon': 'Weapon',
     'hero.noWeapon': 'Bare Hands',
     'hero.armor': 'Armor',
