@@ -32,8 +32,8 @@
   };
   const BOSS_ROUNDS = ['oa', 'phone', 'r1', 'r2', 'r3', 'final', 'hr', 'other'];
 
-  // [门槛, 名称序号, 颜色]；名称在 i18n.js 的 weapons / armors / titles 里
-  const WEAPONS = [[0, 0, null], [3, 1, '#a0522d'], [15, 2, '#c0c0c0'], [30, 3, '#e8eef4'], [60, 4, '#7fdbff'], [100, 5, '#ffd700']];
+  // [门槛, 名称序号, 颜色]；名称在 i18n.js 的 armors / titles 里
+  // 武器不再随攻击升级，只能从升级卡包里抽（见 weapons.js / armory.js）
   const ARMORS = [[0, 0, '#8a7a63'], [3, 1, '#8b5a2b'], [15, 2, '#9e9e9e'], [30, 3, '#b0bec5'], [60, 4, '#4fc3f7'], [100, 5, '#e53935']];
   const TITLES = [[1, 0], [3, 1], [5, 2], [8, 3], [12, 4], [16, 5], [20, 6]];
   const PACKS_PER_LEVEL = 3; // 每升一级送几个卡包
@@ -279,10 +279,10 @@
     return `<svg viewBox="0 0 ${w} ${h}" width="${w * size}" height="${h * size}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
   }
   function heroSprite(st) {
-    const weapon = tier(WEAPONS, st.atk), armor = tier(ARMORS, st.def);
-    // 装备了武器库里的武器：剑身/剑柄换成它的配色
+    const armor = tier(ARMORS, st.def);
+    // 装备了武器库里的武器：剑身/剑柄换成它的配色；没装备就是赤手空拳
     const wp = st.weapon && W.PALETTES[st.weapon.pal];
-    const blade = wp ? wp.b : weapon[2], hilt = wp ? wp.g : (weapon[2] ? '#8d6e63' : null);
+    const blade = wp ? wp.b : null, hilt = wp ? wp.g : null;
     return sprite(HERO, {
       h: '#3b2a1a', s: '#f1c27d', e: '#1b1a2b', m: '#c0392b',
       a: armor[2], A: shade(armor[2], 0.72), y: '#f2c14e', p: '#2c3e70', b: '#3b2a1a', H: '#6b4a2b',
@@ -298,7 +298,7 @@
   let lastLevel = null;
 
   function renderHero(st) {
-    const weapon = tier(WEAPONS, st.atk), armor = tier(ARMORS, st.def);
+    const armor = tier(ARMORS, st.def);
     $('#hero').innerHTML = `
       <div class="hero-top">
         <div class="avatar">${heroSprite(st)}</div>
@@ -321,7 +321,7 @@
       <div class="equip">
         ${st.weapon
           ? `<div class="hero-weapon" style="--rc:${W.RARITIES[st.weapon.rarity].color}"><small>${t('hero.weapon')}<i>${starText(state.armory.owned[st.weapon.id])}</i></small><span class="nm" title="${esc(weaponName(st.weapon))}">${esc(weaponName(st.weapon))}</span></div>`
-          : `<div><small>${t('hero.weapon')}</small>${t('weapons')[weapon[1]]}</div>`}
+          : `<div><small>${t('hero.weapon')}</small>${t('hero.noWeapon')}</div>`}
         <div><small>${t('hero.armor')}</small>${t('armors')[armor[1]]}</div>
       </div>
       <div class="equip">
@@ -669,6 +669,8 @@
   applyStaticText();
   showHint();
   lastLevel = renderAll().lv;
+  // 像素字体加载完再量一次称号缎带宽度（加载前用的是更宽的后备字体）
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => renderHero(computeStats()));
   try {
     const tab = localStorage.getItem('hireloot.tab');
     const b = tab && document.querySelector(`.tab[data-view="${tab}"]`);

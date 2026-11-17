@@ -59,7 +59,7 @@ window.JQ_I18N = {
     'cat.apply': '投递',
     'cat.network': 'Networking',
     'cat.prep': '面试准备',
-    'desc.project': '提升攻击 / 武器',
+    'desc.project': '提升攻击',
     'desc.resume': '提升防御 / 防具',
     'desc.apply': '大量经验 / 升级',
     'desc.network': '魅力 + 盟友',
@@ -67,11 +67,11 @@ window.JQ_I18N = {
 
     'stat.atk': '攻击', 'stat.def': '防御', 'stat.int': '智力', 'stat.cha': '魅力',
     'stat.ally': '盟友', 'stat.exp': 'EXP', 'stat.gold': '金币',
-    'weapons': ['赤手空拳', '木剑', '铁剑', '钢剑', '秘银剑', '传说圣剑'],
     'armors': ['布衣', '皮甲', '锁子甲', '板甲', '秘银甲', '龙鳞甲'],
     'titles': ['求职新手', '简历学徒', '投递骑士', '面试斗士', 'Offer 猎人', '职场勇者', '传说打工人'],
 
     'hero.weapon': '武器',
+    'hero.noWeapon': '赤手空拳',
     'hero.armor': '防具',
     'hero.boss': 'Boss 战',
     'hero.bossVal': '{w} 胜 / {n} 场',
@@ -184,7 +184,7 @@ window.JQ_I18N = {
     'cat.apply': 'Applications',
     'cat.network': 'Networking',
     'cat.prep': 'Interview Prep',
-    'desc.project': 'Raises ATK and your weapon',
+    'desc.project': 'Raises ATK',
     'desc.resume': 'Raises DEF and your armor',
     'desc.apply': 'Lots of EXP to level up',
     'desc.network': 'Charisma and allies',
@@ -192,11 +192,11 @@ window.JQ_I18N = {
 
     'stat.atk': 'ATK', 'stat.def': 'DEF', 'stat.int': 'INT', 'stat.cha': 'CHA',
     'stat.ally': 'Allies', 'stat.exp': 'EXP', 'stat.gold': 'Gold',
-    'weapons': ['Bare Hands', 'Wooden Sword', 'Iron Sword', 'Steel Sword', 'Mithril Sword', 'Legendary Blade'],
     'armors': ['Cloth', 'Leather', 'Chainmail', 'Plate', 'Mithril Mail', 'Dragon Scale'],
     'titles': ['Rookie', 'Resume Apprentice', 'Application Knight', 'Interview Fighter', 'Offer Hunter', 'Career Hero', 'Legend'],
 
     'hero.weapon': 'Weapon',
+    'hero.noWeapon': 'Bare Hands',
     'hero.armor': 'Armor',
     'hero.boss': 'Boss Fights',
     'hero.bossVal': '{w} W / {n} total',
