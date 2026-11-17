@@ -7,8 +7,8 @@
 <a href="README.md"><img src="docs/btn-en-active.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh.png" alt="简体中文" height="38"></a>
 
 <img alt="No install" src="https://img.shields.io/badge/install-none-ffcf4a?style=flat-square">
-<img alt="Zero dependencies" src="https://img.shields.io/badge/dependencies-0-3ddc97?style=flat-square">
-<img alt="Data stays local" src="https://img.shields.io/badge/data-stays_local-c77dff?style=flat-square">
+<a href="https://hireloot.com"><img alt="Play at hireloot.com" src="https://img.shields.io/badge/play-hireloot.com-3ddc97?style=flat-square"></a>
+<img alt="Cloud saves" src="https://img.shields.io/badge/saves-cloud_or_local-c77dff?style=flat-square">
 <img alt="English and Chinese" src="https://img.shields.io/badge/lang-EN_%7C_%E4%B8%AD%E6%96%87-4ea8de?style=flat-square">
 
 <br>
@@ -43,7 +43,7 @@ You can't control when the offer comes. You can control showing up every day. Hi
 
 ## Start playing
 
-**Play in your browser: [xyydcoldcold.github.io/hireloot](https://xyydcoldcold.github.io/hireloot/)**
+**Play in your browser: [hireloot.com](https://hireloot.com)**
 
 Sign up with your email and password and your save lives in the cloud, so you can pick up on your laptop or your phone. Not ready to sign up? Choose **Play as guest**: your save stays in that browser, and moves into your account the first time you sign in.
 
