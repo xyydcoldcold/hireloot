@@ -41,7 +41,9 @@ You can't control when the offer comes. You can control showing up every day. Hi
 
 **3. Fight bosses.** Log each interview with the company and round. Pass it and you earn +100 EXP and 50 gold. Fail it and you still walk away with +40 EXP, because every interview teaches you something. Don't know the result yet? Log it as *Pending* and settle it later.
 
-**4. Look back.** The Adventure Log files every finished quest by day, so on the slow weeks you can see how much you've actually done.
+**4. Level up, open packs.** Every level-up gives you 3 weapon packs. Tear one open to reveal a weapon: Common, Rare, Epic or Legendary, and the Epic and Legendary cards are holographic. The Armory holds all 37 weapons, and the ones you haven't found yet show only a black silhouette and "???". Duplicates add stars. Equip your favorite and your hero carries it.
+
+**5. Look back.** The Adventure Log files every finished quest by day, so on the slow weeks you can see how much you've actually done.
 
 ![Boss fights](docs/en-boss.png)
 
@@ -68,6 +70,8 @@ Hireloot is plain HTML, CSS and JavaScript. No build step, no dependencies.
 | `style.css` | Pixel styling |
 | `app.js` | Game logic. **All reward numbers, gear tiers and titles are at the top**, so tune them however you like. |
 | `i18n.js` | Every piece of UI text, in Chinese and English. Add a language by adding a block here. |
+| `weapons.js` | The Armory: weapon pixel art, palettes, rarities and drop rates. Add a weapon with one line. |
+| `armory.js` | Pack-opening animation, holographic cards, 8-bit sound effects and the Armory page |
 | `categorizer.js` | Suggests an effort type as you type. It uses keyword rules today. Replace `suggest(text)` to plug in an LLM. |
 | `fonts/` | [Fusion Pixel](https://github.com/TakWolf/fusion-pixel-font) by TakWolf, under the SIL Open Font License (see `fonts/OFL.txt`) |
 

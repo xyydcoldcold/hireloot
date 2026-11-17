@@ -36,6 +36,7 @@
   const WEAPONS = [[0, 0, null], [3, 1, '#a0522d'], [15, 2, '#c0c0c0'], [30, 3, '#e8eef4'], [60, 4, '#7fdbff'], [100, 5, '#ffd700']];
   const ARMORS = [[0, 0, '#8a7a63'], [3, 1, '#8b5a2b'], [15, 2, '#9e9e9e'], [30, 3, '#b0bec5'], [60, 4, '#4fc3f7'], [100, 5, '#e53935']];
   const TITLES = [[1, 0], [3, 1], [5, 2], [8, 3], [12, 4], [16, 5], [20, 6]];
+  const PACKS_PER_LEVEL = 3; // 每升一级送几个卡包
 
   // ============ 语言 ============
   const LANG_KEY = 'hireloot.lang';
@@ -58,11 +59,22 @@
 
   // ============ 存储 ============
   const STORE_KEY = 'hireloot.v1';
-  function emptyState() { return { version: 1, tasks: [], interviews: [] }; }
+  function emptyState() { return ensureArmory({ version: 1, tasks: [], interviews: [] }); }
+  // 武器库存档：owned = { 武器id: 抽到次数 }，opened = 已开卡包数，pity = 距上次 SR 以上的包数
+  function ensureArmory(s) {
+    const a = s.armory && typeof s.armory === 'object' ? s.armory : {};
+    s.armory = {
+      owned: a.owned && typeof a.owned === 'object' ? a.owned : {},
+      equipped: typeof a.equipped === 'string' ? a.equipped : null,
+      opened: +a.opened || 0,
+      pity: +a.pity || 0
+    };
+    return s;
+  }
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem(STORE_KEY));
-      if (s && Array.isArray(s.tasks) && Array.isArray(s.interviews)) return s;
+      if (s && Array.isArray(s.tasks) && Array.isArray(s.interviews)) return ensureArmory(s);
     } catch (e) { /* ignore */ }
     return emptyState();
   }
@@ -114,6 +126,11 @@
       if (iv.result === 'pass') st.wins += 1;
     }
     Object.assign(st, levelInfo(st.exp));
+    // 卡包：按等级发放（掉级不会收回已开出的武器，只是少了没开的包）
+    const A = s.armory || { owned: {}, opened: 0 };
+    st.packs = Math.max(0, (st.lv - 1) * PACKS_PER_LEVEL - (A.opened || 0));
+    st.weapon = equippedWeapon(s);
+    st.wAtk = st.weapon ? W.atkOf(st.weapon.id, A.owned[st.weapon.id]) : 0;
     return st;
   }
   function levelInfo(exp) {
@@ -121,6 +138,14 @@
     while (rest >= need) { rest -= need; lv += 1; need = 100 + (lv - 1) * 50; }
     return { lv, cur: rest, need };
   }
+  const W = window.HirelootWeapons;
+  function equippedWeapon(s = state) {
+    const A = s.armory;
+    const w = A && A.equipped && W.BY_ID[A.equipped];
+    return w && A.owned[w.id] ? w : null;
+  }
+  const weaponName = (w) => w.name[lang] || w.name.zh;
+  const starText = (n) => '★'.repeat(Math.min(n, W.MAX_STARS));
   // 智力 → Boss 战经验加成（记录时锁定）
   function intBonus(int) { return Math.min(100, Math.floor(int / 3) * 5); }
 
@@ -175,6 +200,9 @@
     skull:  { map: ['.wwwwww.', 'wwwwwwww', 'wkkwwkkw', 'wkkwwkkw', 'wwwkkwww', '.wwwwww.', '.w.ww.w.'], pal: { w: '#f6f2e0', k: K } },
     hourglass: { map: ['oooooooo', '.wyyyyw.', '..wyyw..', '...ww...', '..w..w..', '.wyyyyw.', 'oooooooo'], pal: { o: '#c58b3a', y: '#ffcf4a', w: '#cfe3ff' } },
     gear:   { map: ['....gg....', '.g.gggg.g.', '..gggggg..', '.gggkkggg.', 'gggk..kggg', 'gggk..kggg', '.gggkkggg.', '..gggggg..', '.g.gggg.g.', '....gg....'], pal: { g: '#d9d2b8', k: '#7d83c0' } },
+    pack:   { map: ['kkkkkkkk', 'kwywywyk', 'kppppppk', 'kpPyyPpk', 'kpywwypk', 'kpyyyypk', 'kpPppPpk', 'kwywywyk', 'kkkkkkkk'], pal: { k: K, p: '#c77dff', P: '#9a4fd8', y: '#ffcf4a', w: '#fff4c2' } },
+    chest:  { map: ['.kkkkkk.', 'kbbbbbbk', 'kbybbybk', 'kkkyykkk', 'kbbyybbk', 'kbybbybk', 'kbbbbbbk', 'kkkkkkkk'], pal: { k: K, b: '#a0622d', y: '#ffcf4a' } },
+    note:   { map: ['..kk....', '..kwk...', '..kwwk..', '..kk.k..', '..k.....', 'kkk.....', 'kkk.....'], pal: { k: '#d9d2b8', w: '#d9d2b8' } },
     none:   { map: ['kkkkkkkk', 'kwwwwwwk', 'kwkkkkwk', 'kwwwwwwk', 'kwkkkwwk', 'kwwwwwwk', 'kkkkkkkk'], pal: { k: K, w: '#a9a5c9' } }
   };
   function icon(name, px = 2) {
@@ -252,10 +280,13 @@
   }
   function heroSprite(st) {
     const weapon = tier(WEAPONS, st.atk), armor = tier(ARMORS, st.def);
+    // 装备了武器库里的武器：剑身/剑柄换成它的配色
+    const wp = st.weapon && W.PALETTES[st.weapon.pal];
+    const blade = wp ? wp.b : weapon[2], hilt = wp ? wp.g : (weapon[2] ? '#8d6e63' : null);
     return sprite(HERO, {
       h: '#3b2a1a', s: '#f1c27d', e: '#1b1a2b', m: '#c0392b',
       a: armor[2], A: shade(armor[2], 0.72), y: '#f2c14e', p: '#2c3e70', b: '#3b2a1a', H: '#6b4a2b',
-      w: weapon[2], g: weapon[2] ? '#8d6e63' : null
+      w: blade, g: hilt
     }, 8, '#0c0b16');
   }
   function bossSprite(result) {
@@ -280,7 +311,7 @@
       <div class="bar-label"><span>EXP</span><span>${st.cur} / ${st.need}</span></div>
       <div class="bar"><i style="width:${(st.cur / st.need * 100).toFixed(1)}%"></i></div>
       <ul class="stats">
-        <li><b style="color:${CATEGORIES.project.color}">${icon('sword')}${t('stat.atk')}</b><span>${st.atk}</span></li>
+        <li><b style="color:${CATEGORIES.project.color}">${icon('sword')}${t('stat.atk')}</b><span>${st.atk}${st.wAtk ? `<em class="bonus">+${st.wAtk}</em>` : ''}</span></li>
         <li><b style="color:${CATEGORIES.resume.color}">${icon('shield')}${t('stat.def')}</b><span>${st.def}</span></li>
         <li><b style="color:${CATEGORIES.prep.color}">${icon('book')}${t('stat.int')}</b><span>${st.int}</span></li>
         <li><b style="color:${CATEGORIES.network.color}">${icon('heart')}${t('stat.cha')}</b><span>${st.cha}</span></li>
@@ -288,13 +319,19 @@
         <li><b style="color:var(--gold)">${icon('coin')}${t('stat.gold')}</b><span>${st.gold}</span></li>
       </ul>
       <div class="equip">
-        <div><small>${t('hero.weapon')}</small>${t('weapons')[weapon[1]]}</div>
+        ${st.weapon
+          ? `<div class="hero-weapon" style="--rc:${W.RARITIES[st.weapon.rarity].color}"><small>${t('hero.weapon')}<i>${starText(state.armory.owned[st.weapon.id])}</i></small><span class="nm" title="${esc(weaponName(st.weapon))}">${esc(weaponName(st.weapon))}</span></div>`
+          : `<div><small>${t('hero.weapon')}</small>${t('weapons')[weapon[1]]}</div>`}
         <div><small>${t('hero.armor')}</small>${t('armors')[armor[1]]}</div>
       </div>
       <div class="equip">
         <div><small>${t('hero.boss')}</small>${t('hero.bossVal', { w: st.wins, n: st.bosses })}</div>
         <div><small>${t('hero.bonus')}</small>+${intBonus(st.int)} EXP</div>
-      </div>`;
+      </div>
+      ${st.packs ? `<button class="pack-btn" data-act="open-packs">${icon('pack', 3)}<span>${t('pack.btn', { n: st.packs })}</span></button>` : ''}`;
+    // 称号太长放不下一行时，换小一号字，不折行
+    const ribbon = $('#hero .title');
+    if (ribbon && ribbon.scrollWidth > ribbon.clientWidth) ribbon.classList.add('tight');
   }
 
 
@@ -386,6 +423,7 @@
     renderToday();
     renderHistory();
     renderBoss();
+    if (window.HirelootArmory) window.HirelootArmory.render(st);
     return st;
   }
 
@@ -406,17 +444,21 @@
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1200);
   }
-  function levelUp(st) {
+  function levelUp(st, gained) {
     const el = $('#levelup');
-    el.innerHTML = `<div>LEVEL UP!</div><small>Lv.${st.lv} · ${titleName(st.lv)}</small>`;
+    el.innerHTML = `<div>LEVEL UP!</div><small>Lv.${st.lv} · ${titleName(st.lv)}</small>` +
+      // 掉级后再升回来不会重复发包，所以按实际待开数量显示
+      (st.packs ? `<small class="lvl-packs">${icon('pack', 2)}${t('pack.gain', { n: Math.min(gained * PACKS_PER_LEVEL, st.packs) })}</small>` : '');
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    // 横幅播完，直接端出卡包
+    if (window.HirelootArmory) setTimeout(() => window.HirelootArmory.openStage(true), 1600);
   }
   function commit(anchor, text, color) {
     const pt = anchor && anchor.isConnected ? anchorPoint(anchor) : null;
     save();
     const st = renderAll();
     floatText(pt, text, color);
-    if (lastLevel !== null && st.lv > lastLevel) levelUp(st);
+    if (lastLevel !== null && st.lv > lastLevel) levelUp(st, st.lv - lastLevel);
     lastLevel = st.lv;
   }
 
@@ -475,6 +517,7 @@
       return;
     }
     if (act === 'use-suggest') { setPicker(sel, suggestion); showHint(); input.focus(); return; }
+    if (window.HirelootArmory && window.HirelootArmory.handle(act, btn, e)) return;
 
     if (act === 'toggle') {
       const task = state.tasks.find((x) => x.id === id);
@@ -542,7 +585,7 @@
       const s = JSON.parse(await f.text());
       if (!Array.isArray(s.tasks) || !Array.isArray(s.interviews)) throw new Error(t('import.bad'));
       if (confirm(t('import.confirm', { t: s.tasks.length, b: s.interviews.length }))) {
-        state = s; lastLevel = null; commit(); closeSettings();
+        state = ensureArmory(s); lastLevel = null; commit(); closeSettings();
       }
     } catch (err) { alert(t('import.fail') + err.message); }
   });
@@ -588,6 +631,12 @@
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', String(on));
     });
+    const sfxOn = !window.HirelootArmory || window.HirelootArmory.sfxOn();
+    settings.querySelectorAll('.sfx-btn').forEach((b) => {
+      const on = (b.dataset.sfx === 'on') === sfxOn;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
   }
   function applyStaticText() {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
@@ -627,5 +676,11 @@
   } catch (err) { /* ignore */ }
 
   // 暴露给分类器 / 调试用
-  window.Hireloot = { CATEGORIES, CATEGORY_KEYS, EFFORT_KEYS, computeStats, getState: () => state, setLang };
+  window.Hireloot = {
+    CATEGORIES, CATEGORY_KEYS, EFFORT_KEYS, computeStats, getState: () => state, setLang,
+    // 给 armory.js 用
+    t, esc, icon, sprite, save, refresh: () => { save(); lastLevel = renderAll().lv; }, renderSettings,
+    getLang: () => lang, weaponName, starText
+  };
+  if (window.HirelootArmory) window.HirelootArmory.init(window.Hireloot);
 })();
