@@ -85,6 +85,8 @@ window.HirelootArmory = (function () {
     }
     return H.sprite(shape, W.PALETTES[w.pal], px, '#0c0b16');
   }
+  // 名字长度（中文算两格），太长的卡名换小一号字
+  const nameLen = (s) => [...s].reduce((n, c) => n + (c.charCodeAt(0) > 255 ? 2 : 1), 0);
   // opts: { locked, count, back, mini, flipped }
   function cardHtml(w, opts = {}) {
     const lang = H.getLang();
@@ -101,7 +103,7 @@ window.HirelootArmory = (function () {
         <div class="card-front">
           <div class="card-top"><span class="rar">${w.rarity}</span><span class="atk">${atk}</span></div>
           <div class="card-art"><div class="rays"></div>${weaponSvg(w, locked, opts.mini ? 3 : 4)}</div>
-          <div class="card-name">${locked ? t('armory.locked') : H.esc(w.name[lang] || w.name.zh)}</div>
+          <div class="card-name ${!locked && nameLen(w.name[lang] || w.name.zh) > 16 ? 'long' : ''}">${locked ? t('armory.locked') : H.esc(w.name[lang] || w.name.zh)}</div>
           <div class="card-stars">${stars || `<span class="rar-name">${t('rarity.' + w.rarity)}</span>`}</div>
           <div class="card-desc">${locked ? t('armory.lockedDesc') : H.esc(w.desc[lang] || w.desc.zh)}</div>
           ${equipped && opts.mini ? `<span class="eq-badge">${t('armory.equipped')}</span>` : ''}

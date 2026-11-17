@@ -320,7 +320,7 @@
       </ul>
       <div class="equip">
         ${st.weapon
-          ? `<div class="hero-weapon" style="--rc:${W.RARITIES[st.weapon.rarity].color}"><small>${t('hero.weapon')}</small>${esc(weaponName(st.weapon))}<i>${starText(state.armory.owned[st.weapon.id])}</i></div>`
+          ? `<div class="hero-weapon" style="--rc:${W.RARITIES[st.weapon.rarity].color}"><small>${t('hero.weapon')}<i>${starText(state.armory.owned[st.weapon.id])}</i></small><span class="nm" title="${esc(weaponName(st.weapon))}">${esc(weaponName(st.weapon))}</span></div>`
           : `<div><small>${t('hero.weapon')}</small>${t('weapons')[weapon[1]]}</div>`}
         <div><small>${t('hero.armor')}</small>${t('armors')[armor[1]]}</div>
       </div>
@@ -329,6 +329,9 @@
         <div><small>${t('hero.bonus')}</small>+${intBonus(st.int)} EXP</div>
       </div>
       ${st.packs ? `<button class="pack-btn" data-act="open-packs">${icon('pack', 3)}<span>${t('pack.btn', { n: st.packs })}</span></button>` : ''}`;
+    // 称号太长放不下一行时，换小一号字，不折行
+    const ribbon = $('#hero .title');
+    if (ribbon && ribbon.scrollWidth > ribbon.clientWidth) ribbon.classList.add('tight');
   }
 
 
