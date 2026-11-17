@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hireloot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>HIRELOOT</h1>
+    <div class="top-right">
+      <nav class="tabs">
+        <button class="tab active" data-act="tab" data-view="view-today"><span data-icon="scroll"></span><span data-i18n="tab.today"></span></button>
+        <button class="tab" data-act="tab" data-view="view-boss"><span data-icon="demon"></span><span data-i18n="tab.boss"></span></button>
+        <button class="tab" data-act="tab" data-view="view-history"><span data-icon="castle"></span><span data-i18n="tab.log"></span></button>
+      </nav>
+      <button class="gear" data-act="settings" data-i18n-aria="settings" title=""><span data-icon="gear" data-px="3"></span></button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside id="hero" class="px hero"></aside>
+
+    <section class="content">
+      <!-- 今日任务 -->
+      <div id="view-today" class="view">
+        <div class="px panel">
+          <div class="panel-head">
+            <h2 id="today-date"></h2>
+            <span id="today-exp" class="pill"></span>
+          </div>
+          <form id="add-form" class="add-form" autocomplete="off">
+            <input id="add-input" data-i18n-ph="add.ph" maxlength="200">
+            <div id="add-cat-slot"></div>
+            <button type="submit" class="primary" data-i18n="add.submit"></button>
+          </form>
+          <p id="add-hint" class="hint"></p>
+          <ul id="pending-list" class="tasks"></ul>
+        </div>
+        <details class="px panel done-panel">
+          <summary><span data-i18n="today.doneTitle"></span> (<span id="done-count">0</span>)</summary>
+          <ul id="done-list" class="tasks"></ul>
+        </details>
+      </div>
+
+      <!-- Boss 战 -->
+      <div id="view-boss" class="view" hidden>
+        <div class="px panel">
+          <div class="panel-head"><h2 data-i18n="boss.formTitle"></h2></div>
+          <form id="boss-form" class="boss-form" autocomplete="off">
+            <label><span data-i18n="boss.company"></span><input id="boss-company" required data-i18n-ph="boss.companyPh" maxlength="80"></label>
+            <div class="field"><span data-i18n="boss.round"></span><div id="boss-round-slot"></div></div>
+            <label><span data-i18n="boss.date"></span><input id="boss-date" type="date"></label>
+            <fieldset class="result">
+              <legend data-i18n="boss.result"></legend>
+              <label><input type="radio" name="result" value="pass"> <span data-icon="trophy"></span><span data-i18n="boss.pass"></span></label>
+              <label><input type="radio" name="result" value="fail"> <span data-icon="skull"></span><span data-i18n="boss.fail"></span></label>
+              <label><input type="radio" name="result" value="pending" checked> <span data-icon="hourglass"></span><span data-i18n="boss.pending"></span></label>
+            </fieldset>
+            <label class="wide"><span data-i18n="boss.note"></span><input id="boss-note" data-i18n-ph="boss.notePh" maxlength="300"></label>
+            <button type="submit" class="primary wide" data-i18n="boss.submit"></button>
+          </form>
+          <p class="hint" data-i18n="boss.rule"></p>
+        </div>
+        <ul id="boss-list" class="boss-list"></ul>
+      </div>
+
+      <!-- 冒险日志 -->
+      <div id="view-history" class="view" hidden>
+        <div class="px panel">
+          <div class="panel-head"><h2 data-i18n="log.title"></h2></div>
+          <div id="history-summary" class="summary"></div>
+        </div>
+        <div id="history-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 设置 -->
+  <div id="settings" class="modal" hidden>
+    <div class="px modal-win" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="panel-head">
+        <h2 id="settings-title" data-i18n="settings"></h2>
+        <button class="del" data-act="settings-close" data-i18n-aria="settings.close">✕</button>
+      </div>
+      <div class="set-row">
+        <div class="set-label" data-i18n="settings.lang"></div>
+        <div class="seg">
+          <button class="lang-btn" data-act="lang" data-lang="zh">中文</button>
+          <button class="lang-btn" data-act="lang" data-lang="en">English</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label" data-i18n="settings.data"></div>
+        <div class="seg">
+          <button data-act="export" data-i18n="settings.export"></button>
+          <button data-act="import" data-i18n="settings.import"></button>
+        </div>
+      </div>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+
+  <div id="levelup" class="levelup" aria-live="polite"></div>
+
+  <script src="i18n.js"></script>
+  <script src="categorizer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
