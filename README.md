@@ -43,36 +43,15 @@ You can't control when the offer comes. You can control showing up every day. Hi
 
 ## Start playing
 
-No sign-up, no install, no server. (You can also host it online with cloud saves, see below.)
+**Play in your browser: [xyydcoldcold.github.io/hireloot](https://xyydcoldcold.github.io/hireloot/)**
 
-1. Download this repository (green **Code** button → **Download ZIP**), or `git clone` it.
-2. Open `index.html` in your browser. That's it.
+Sign up with your email and password and your save lives in the cloud, so you can pick up on your laptop or your phone. Not ready to sign up? Choose **Play as guest**: your save stays in that browser, and moves into your account the first time you sign in.
 
 Bookmark the page and open it each morning.
 
-The ⚙ button in the top right switches between English and 中文, and lets you export or import your save.
+The ⚙ button in the top right switches between English and 中文, shows your account and sync status, and lets you export or import your save.
 
-**By default your data stays on your computer.** Progress is saved in your browser's local storage and never leaves your device. That also means it lives in one browser on one computer, so export a save from Settings before switching browsers or clearing site data. To play across devices, turn on cloud saves as described below.
-
-## Host it online: email sign-in and cloud saves
-
-Hireloot can be hosted as a static site (for example on GitHub Pages), with [Supabase](https://supabase.com)'s free tier providing email and password sign-in and one cloud save per player. No backend code to write.
-
-1. Create a project on Supabase.
-2. Open the project's **SQL Editor**, paste in all of [`supabase/schema.sql`](supabase/schema.sql) and run it. It creates the `saves` table (one JSON save per user) and turns on row-level security, so each player can only read and write their own row.
-3. Copy the project URL (from the **Connect** button at the top of the project page, like `https://xxxx.supabase.co`) and the **Publishable key** from **Project Settings → API Keys** (starts with `sb_publishable_`; older projects call it the `anon` key) into [`config.js`](config.js). It is meant to be public and is safe to commit. **Never put the Secret key or the `service_role` key there.**
-4. Open **Authentication → URL Configuration**, set **Site URL** to your site's address (for example `https://your-name.github.io/hireloot/`) and add it to **Redirect URLs**. Links in confirmation and password-reset emails lead back there.
-5. Deploy: in the repository go to **Settings → Pages**, pick the `main` branch root as the source, and save. The site is live a minute or two later.
-
-Once it's on:
-
-- The page opens with a sign-in window. Players can also choose to play as a guest, with the save kept on that device only. A guest save moves into the account the first time the player signs in.
-- When signed in, every change uploads automatically. Offline changes are kept locally and uploaded once the connection is back. Settings shows the sync status.
-- If two devices both changed the save, the game asks which one to keep instead of silently overwriting either.
-- Signing out clears the save from that device. It stays in the cloud.
-- Supabase's built-in email service only sends a few emails per hour. For real traffic, connect your own provider (such as Resend) under **Authentication → SMTP Settings**.
-
-With `config.js` left empty, everything works exactly as before, fully local.
+Prefer to keep everything offline? Download this repository (green **Code** button → **Download ZIP**) and open `index.html` in your browser. Without an internet connection the game runs fully local, and your progress stays in that browser's local storage.
 
 ## For tinkerers
 

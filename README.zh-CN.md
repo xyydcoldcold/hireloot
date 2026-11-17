@@ -43,36 +43,15 @@ Offer 什么时候来，你决定不了。但每天坚持出现，你可以。Hi
 
 ## 开始游戏
 
-不用注册，不用安装，也没有服务器（想部署成网页、多设备同步也可以，见下文）。
+**直接在浏览器里玩：[xyydcoldcold.github.io/hireloot](https://xyydcoldcold.github.io/hireloot/)**
 
-1. 下载这个仓库（绿色 **Code** 按钮 → **Download ZIP**），或者 `git clone`。
-2. 用浏览器打开 `index.html`，就可以开始了。
+用邮箱和密码注册，存档就保存在云端，电脑和手机都能接着玩。暂时不想注册，可以选 **游客试玩**：存档只留在这个浏览器里，之后第一次登录时会自动搬进账号。
 
 建议加个书签，每天早上打开。
 
-右上角的 ⚙ 按钮可以切换中文 / English，也可以导出、导入存档。
+右上角的 ⚙ 按钮可以切换中文 / English，查看账号和同步状态，也可以导出、导入存档。
 
-**默认数据只存在你自己的电脑上。** 进度保存在浏览器的本地存储里，不会上传到任何地方。也正因如此，它只在这台电脑的这个浏览器里有效。换浏览器或清除网站数据前，记得先在设置里导出存档。想在多台设备上玩，可以按下面的步骤开启云存档。
-
-## 部署到网上：邮箱登录 + 云存档
-
-Hireloot 可以作为静态网页部署（比如 GitHub Pages），用 [Supabase](https://supabase.com) 免费档提供邮箱密码登录和每人一份的云存档，不用自己写后端。
-
-1. 在 Supabase 新建一个项目。
-2. 打开项目的 **SQL Editor**，把 [`supabase/schema.sql`](supabase/schema.sql) 整段粘进去运行。它会建 `saves` 表（每个用户一行 JSON 存档），并打开行级安全，每个人只能读写自己那一行。
-3. 把项目网址（项目首页顶部 **Connect** 按钮里，形如 `https://xxxx.supabase.co`）和 **Project Settings → API Keys** 里的 **Publishable key**（`sb_publishable_` 开头，旧项目叫 `anon` key）填进 [`config.js`](config.js)。这是公开 key，可以提交到仓库；**千万不要填 Secret key 或 `service_role` key**。
-4. 打开 **Authentication → URL Configuration**，把 **Site URL** 设成你的网址（例如 `https://你的用户名.github.io/hireloot/`），并加进 **Redirect URLs**。注册确认邮件和找回密码邮件里的链接会跳回这里。
-5. 部署：仓库 **Settings → Pages**，Source 选 `main` 分支根目录，保存后等一两分钟即可访问。
-
-开启后：
-
-- 打开网页会先出现登录框，也可以选“游客试玩”，存档只留在本机。游客存档在第一次登录时会自动搬进账号。
-- 登录后每次操作都会自动上传（断网时先存本地，联网后补传）。设置里能看到同步状态。
-- 两台设备都改过同一份存档时，会弹窗让你选保留云端还是本机，不会悄悄覆盖。
-- 退出登录会清掉这台设备上的存档缓存，数据仍在云端。
-- Supabase 免费档默认的发信服务每小时只能发几封邮件，正式给很多人用时，建议在 **Authentication → SMTP Settings** 接入自己的邮件服务（比如 Resend）。
-
-`config.js` 留空时，一切和以前一样，纯本地运行。
+想完全离线玩？下载这个仓库（绿色 **Code** 按钮 → **Download ZIP**），用浏览器打开 `index.html`。没联网时游戏纯本地运行，进度只保存在这个浏览器的本地存储里。
 
 ## 想自己改？
 
