@@ -5,6 +5,6 @@
  * 千万不要把 Secret key（sb_secret_ 开头）或 service_role key 填在这里。
  */
 window.HIRELOOT_CONFIG = {
-  supabaseUrl: '',      // 项目首页 Connect 按钮里，例如 'https://abcdefgh.supabase.co'
-  supabaseAnonKey: ''   // Project Settings → API Keys → Publishable key
+  supabaseUrl: 'https://jlxulkyekuharwokjlsu.supabase.co',      // 项目首页 Connect 按钮里，例如 'https://abcdefgh.supabase.co'
+  supabaseAnonKey: 'sb_publishable_Ft8UYGT_O-IhC3_HbwoJug_y2OvxG6n'   // Project Settings → API Keys → Publishable key
 };
