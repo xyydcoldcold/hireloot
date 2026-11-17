@@ -2,7 +2,7 @@
 
 <img src="docs/logo.png" alt="HIRELOOT" width="420">
 
-**把找工作变成一场像素 RPG。**
+**一个像素游戏风格的待办清单，让找工作的每一份努力都算数。**
 
 <a href="README.md"><img src="docs/btn-en.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh-active.png" alt="简体中文" height="38"></a>
 

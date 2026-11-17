@@ -2,7 +2,7 @@
 
 <img src="docs/logo.png" alt="HIRELOOT" width="420">
 
-**Turn your job hunt into a pixel RPG.**
+**A pixel-game-style to-do list that makes every job-hunting effort count.**
 
 <a href="README.md"><img src="docs/btn-en-active.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh.png" alt="简体中文" height="38"></a>
 
