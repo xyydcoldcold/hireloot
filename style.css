@@ -810,3 +810,23 @@ button.linkish:active { transform: none; box-shadow: none; }
 .conflict-opt b { font-weight: normal; }
 .conflict-opt small { font-size: var(--s); color: var(--muted); }
 @media (max-width: 420px) { .conflict-opts { grid-template-columns: 1fr; } }
+
+/* 老用户登录：顶部滑下来的欢迎条 */
+.welcome-toast {
+  position: fixed; left: 50%; top: 18px; z-index: 300; transform: translate(-50%, -160%);
+  min-width: 260px; max-width: calc(100vw - 32px); padding: 14px 26px 16px; text-align: center;
+  background: var(--win); border: 4px solid var(--edge); pointer-events: none;
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 6px var(--edge), 6px 6px 0 rgba(0,0,0,.5);
+}
+.welcome-toast b { display: block; font-weight: normal; font-size: var(--l); color: var(--gold); text-shadow: 2px 2px 0 var(--edge); overflow-wrap: anywhere; }
+.welcome-toast small { display: block; margin-top: 8px; font-size: var(--s); color: var(--muted); }
+.welcome-toast.show { animation: toast-in 3.2s steps(8) forwards; }
+@keyframes toast-in {
+  0% { transform: translate(-50%, -160%); }
+  12%, 85% { transform: translate(-50%, 0); }
+  100% { transform: translate(-50%, -160%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-toast.show { animation: toast-fade 3.2s forwards; transform: translate(-50%, 0); }
+  @keyframes toast-fade { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+}

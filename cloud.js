@@ -27,6 +27,7 @@
   let mode = 'login';    // 弹窗模式：login | signup | forgot | recover | conflict
   let conflict = null;   // { cloud: {data, rev} }
   let modalReturn = null;
+  let greet = null;      // 'new' 新注册 | 'back' 老用户登录：同步完后打招呼
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const t = (k, v) => H.t(k, v);
@@ -93,7 +94,7 @@
 
   // 拉云端存档，和本机对比
   function pull() {
-    if (!pulling) pulling = doPull().finally(() => { pulling = null; });
+    if (!pulling) pulling = doPull().finally(() => { pulling = null; maybeGreet(); });
     return pulling;
   }
   async function doPull() {
@@ -115,6 +116,7 @@
     }
     if (!row) {
       // 新账号：把本机存档（游客存档或空档）作为第一份云存档
+      greet = 'new';
       writeMeta({ uid, rev: 0, dirty: true });
       return push();
     }
@@ -147,6 +149,7 @@
     if (!row || !user) return;
     if (which === 'cloud') adopt(row);
     else { writeMeta({ uid: user.id, rev: row.rev, dirty: true }); push(); }
+    maybeGreet();
   }
 
   // ============ 登录状态 ============
@@ -155,7 +158,7 @@
     user = u;
     ls.del(GUEST_KEY);
     renderAccount();
-    if (mode !== 'recover' && mode !== 'conflict') closeModal();
+    if (mode !== 'recover' && mode !== 'conflict' && mode !== 'welcome') closeModal();
     if (changed) pull();
   }
 
@@ -171,6 +174,7 @@
     ls.del(META_KEY);
     H.replaceState(H.emptyState());
     setStatus('idle');
+    $('#settings').hidden = true;
     openModal('login');
   }
 
@@ -203,6 +207,15 @@
           <button class="conflict-opt" data-act="conflict" data-which="local">${H.icon('chest', 3)}<b>${esc(t('cloud.conflict.local'))}</b><small>${esc(t('cloud.conflict.count', l))}</small></button>
         </div>
         <p class="hint">${esc(t('cloud.conflict.hint'))}</p>`;
+    }
+    if (mode === 'welcome') {
+      return `${head(t('cloud.welcome.title'), false)}
+        <p class="auth-text">${esc(t('cloud.welcome.body'))}</p>
+        <form class="auth-form" data-form="welcome" autocomplete="off">
+          <label><span>${esc(t('cloud.welcome.name'))}</span><input name="name" maxlength="${H.NAME_MAX}" value="${esc(H.getName())}" placeholder="${esc(t('hero.namePh'))}" spellcheck="false"></label>
+          <button type="submit" class="primary">${esc(t('cloud.welcome.go'))}</button>
+          <button type="button" class="linkish" data-act="auth-close-force">${esc(t('cloud.welcome.later'))}</button>
+        </form>`;
     }
     if (mode === 'recover') {
       return `${head(t('cloud.recover.title'), false)}
@@ -262,6 +275,7 @@
 
   async function submit(form) {
     const kind = form.dataset.form;
+    if (kind === 'welcome') { H.setName(form.elements.name.value); closeModal(true); return; }
     const email = form.email ? form.email.value.trim() : '';
     const password = form.password ? form.password.value : '';
     if (email) lastEmail = email;
@@ -273,6 +287,7 @@
       if (kind === 'login') {
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        greet = 'back';
         if (data.user) signedIn(data.user);
       } else if (kind === 'signup') {
         const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: here() } });
@@ -298,6 +313,30 @@
     } finally {
       if (btn.isConnected) btn.disabled = false;
     }
+  }
+
+  // 打招呼：新注册弹欢迎窗口（顺便起名），老用户登录弹一条“欢迎回来”
+  function maybeGreet() {
+    if (!greet || !user) return;
+    const el = modal();
+    if (el && !el.hidden && (mode === 'conflict' || mode === 'recover')) return; // 先处理完冲突再说
+    const g = greet;
+    greet = null;
+    if (g === 'new') { openModal('welcome'); return; }
+    const st = H.computeStats();
+    const name = H.getName() || t('hero.noName');
+    let toast = $('#welcome-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'welcome-toast';
+      toast.className = 'welcome-toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<b>${H.esc(t('cloud.back.title', { n: name }))}</b><small>Lv.${st.lv} · ${H.esc(H.titleName(st.lv))}</small>`;
+    toast.classList.remove('show');
+    void toast.offsetWidth;
+    toast.classList.add('show');
   }
 
   // 设置里的“账号”一行
@@ -352,6 +391,7 @@
       const act = btn.dataset.act;
       if (act === 'auth-open') { $('#settings').hidden = true; openModal('login'); }
       else if (act === 'auth-close') closeModal();
+      else if (act === 'auth-close-force') closeModal(true);
       else if (act === 'auth-mode') { const f = modal().querySelector('input[name=email]'); if (f) lastEmail = f.value.trim(); openModal(btn.dataset.mode); }
       else if (act === 'auth-guest') { ls.set(GUEST_KEY, '1'); closeModal(); }
       else if (act === 'auth-logout') logout();

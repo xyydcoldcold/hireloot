@@ -360,6 +360,14 @@
     return `<button class="hero-name ${n ? '' : 'unnamed'}" data-act="rename" title="${esc(t('hero.rename'))}" aria-label="${esc(t('hero.rename'))}">
       <span class="nm">${esc(n || t('hero.noName'))}</span>${icon('pencil', 2)}</button>`;
   }
+  const cleanName = (v) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+  function setName(v) {
+    v = cleanName(v);
+    if (v === getName()) return false;
+    state.profile = { ...(state.profile || {}), name: v };
+    commit();
+    return true;
+  }
   function startRename(btn) {
     const input = document.createElement('input');
     input.className = 'hero-name-input';
@@ -376,11 +384,7 @@
     const finish = (keep) => {
       if (done) return;
       done = true;
-      const v = input.value.replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
-      if (keep && v !== getName()) {
-        state.profile = { ...(state.profile || {}), name: v };
-        commit();
-      } else renderHero(computeStats());
+      if (!(keep && setName(input.value))) renderHero(computeStats());
       const b = $('#hero .hero-name');
       if (b) b.focus();
     };
@@ -742,7 +746,7 @@
     t, esc, icon, sprite, save, refresh: () => { save(); lastLevel = renderAll().lv; }, renderSettings,
     getLang: () => lang, weaponName, starText,
     // 给 cloud.js 用
-    replaceState, isEmptyState, emptyState
+    replaceState, isEmptyState, emptyState, getName, setName, titleName, NAME_MAX
   };
   if (window.HirelootArmory) window.HirelootArmory.init(window.Hireloot);
   if (window.HirelootCloud) window.HirelootCloud.init(window.Hireloot);
