@@ -585,22 +585,56 @@ body.no-scroll { overflow: hidden; }
   background: linear-gradient(110deg, transparent 0 35%, #ff6bd6 35% 40%, #f9f871 40% 45%, #47c6ff 45% 50%, transparent 50%);
   background-size: 300% 100%; animation: sheen 2.4s steps(18) infinite;
 }
-/* 蓄力：抖动 + 漏光（光的颜色就是稀有度的提示） */
-.pack.charging { animation: packShake .12s steps(2) infinite; }
-.pack.charging .pack-top, .pack.charging .pack-body { animation: leak 1.2s steps(6) forwards; }
-.r-SSR .pack.charging { animation-duration: .08s; }
+/* 拖动撕包：--p 是撕开进度（0~1），左半截包顶跟着翘起来，缝里漏出稀有度颜色的光 */
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+.pack { --p: 0; touch-action: none; cursor: grab; }
+.pack.grab { cursor: grabbing; }
+.pack.dragging, .pack.grab { animation: none; }
+.pack.dragging { filter: drop-shadow(0 0 calc(var(--p) * 14px) var(--rc, #fff4c2)) brightness(calc(1 + var(--p) * .25)); }
+.pack.snap { transition: --p .25s steps(4); }
+.pack-top.t-l {
+  z-index: 2; filter: brightness(1.12);
+  clip-path: inset(-20px calc((1 - var(--p)) * 100%) 0 -20px);
+  transform-origin: calc(var(--p) * 100%) 100%;
+  transform: translateY(calc(var(--p) * -10px)) rotate(calc(var(--p) * 9deg));
+}
+.pack-top.t-r { clip-path: inset(0 0 0 calc(var(--p) * 100%)); }
+.tear-line {
+  position: absolute; left: 0; top: calc(18% - 3px); height: 6px; z-index: 1; pointer-events: none;
+  width: calc(var(--p) * 100%); opacity: calc(var(--p) * 12);
+  background: var(--rc, #fff4c2);
+  box-shadow: 0 0 6px var(--rc, #fff4c2), 0 0 16px var(--rc, #fff4c2), 0 -8px 24px var(--rc, #fff4c2);
+}
+.tear-guide {
+  position: absolute; left: 0; right: 0; top: 18%; z-index: 3; pointer-events: none;
+  border-top: 3px dashed rgba(255,244,194,.85); padding-top: 4px;
+  font-size: var(--s); color: #fff4c2; text-shadow: 2px 2px 0 var(--edge); letter-spacing: 1px;
+  opacity: calc(1 - var(--p) * 8); animation: blink 1s steps(2) infinite;
+}
+.scrap {
+  position: absolute; top: 18%; width: 6px; height: 6px; z-index: 3; pointer-events: none;
+  background: #d9d2b8; box-shadow: 2px 2px 0 var(--edge);
+  animation: scrapFall .7s steps(7) forwards;
+}
+.scrap:nth-child(odd) { background: #c77dff; }
+@keyframes scrapFall { to { transform: translate(var(--dx), 72px) rotate(90deg); opacity: 0; } }
+.bits.paper { top: 18%; }
+/* 卡牌背面朝上蓄力：抖动 + 漏光（光的颜色就是稀有度的提示） */
+.card.rising.charging { animation: rise .42s steps(6) both, packShake .12s steps(2) .42s infinite; }
+.slot.r-SSR .card.rising.charging { animation: rise .42s steps(6) both, packShake .07s steps(2) .42s infinite; }
+.card.charging .card-back { animation: leak 1.2s steps(6) forwards; }
+.slot.r-N .card.charging .card-back { animation-name: leakSoft; }
 @keyframes packShake { 0% { translate: -3px 0; rotate: -1deg; } 50% { translate: 3px -2px; rotate: 1deg; } 100% { translate: -2px 1px; } }
 @keyframes leak {
   from { filter: none; }
   to { filter: drop-shadow(0 0 0 var(--rc)) drop-shadow(0 0 10px var(--rc)) drop-shadow(0 0 22px var(--rc)) brightness(1.25); }
 }
-.r-N .pack.charging .pack-top, .r-N .pack.charging .pack-body { animation-name: leakSoft; }
 @keyframes leakSoft { to { filter: brightness(1.15); } }
 /* 撕开 */
 .pack.torn { animation: none; }
 .pack.torn .pack-top { animation: tearOff .45s steps(6) forwards; }
 .pack.torn .pack-body { animation: dropAway .5s steps(6) forwards; }
-.pack.torn .pack-foil { display: none; }
+.pack.torn .pack-foil, .pack.torn .tear-line, .pack.torn .tear-guide { display: none; }
 @keyframes tearOff { to { transform: translate(60%, -140%) rotate(28deg); opacity: 0; } }
 @keyframes dropAway { 40% { opacity: 1; } to { transform: translateY(60%); opacity: 0; } }
 /* 光柱 */

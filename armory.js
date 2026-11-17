@@ -70,6 +70,7 @@ window.HirelootArmory = (function () {
         [784, 988, 1175].forEach((f) => tone(f, 0.45, { at: n * 0.06 + 0.04, vol: 0.03, type: 'triangle' }));
       }
     },
+    rip(p) { noise(0.05, 0.05 + p * 0.05); tone(300 + p * 500, 0.04, { vol: 0.025 }); },
     star() { tone(1568, 0.08, { vol: 0.04 }); tone(2093, 0.16, { at: 0.08, vol: 0.04 }); },
     click() { tone(660, 0.05, { vol: 0.03 }); }
   };
@@ -137,11 +138,16 @@ window.HirelootArmory = (function () {
 
   // ============ 开包舞台 ============
   const stage = () => $('#pack-stage');
-  let session = null; // { slots: [{ state: 'sealed'|'busy'|'open', pull }], fromLevelUp }
+  // 卡包状态：sealed 没动过 → tearing 正在撕（已经抽好）→ busy 开包演出中 → open 已翻开
+  let session = null; // { slots: [{ state, pull }], fromLevelUp }
 
+  // 包顶画两份：左边 t-l 是已经撕开的部分（跟着手指翘起来），右边 t-r 还连着包身。--p 是撕开进度 0~1
   function packHtml(i) {
     return `<button class="pack" data-act="pack-tear" data-i="${i}" aria-label="${t('pack.hint')}">
-      <span class="pack-top"><span class="crimp"></span></span>
+      <span class="pack-top t-r"><span class="crimp"></span></span>
+      <span class="pack-top t-l"><span class="crimp"></span></span>
+      <span class="tear-line"></span>
+      <span class="tear-guide">${t('pack.tearHere')}</span>
       <span class="pack-body">
         <span class="pack-logo">HIRELOOT</span>
         <span class="pack-emblem">${H.icon('chest', 5)}</span>
@@ -177,14 +183,15 @@ window.HirelootArmory = (function () {
 
   function renderActions() {
     if (!session) return;
-    const sealed = session.slots.filter((s) => s.state === 'sealed').length;
+    const sealed = session.slots.filter((s) => s.state === 'sealed' || s.state === 'tearing').length;
     const busy = session.slots.some((s) => s.state === 'busy');
+    const untouched = session.slots.every((s) => s.state === 'sealed');
     const done = !sealed && !busy;
     const left = H.computeStats().packs;
     const box = $('.stage-actions', stage());
     box.innerHTML = done
       ? `${left ? `<button data-act="pack-more">${t('pack.more', { n: Math.min(3, left) })}</button>` : ''}<button class="primary" data-act="pack-done">${t('pack.done')}</button>`
-      : `${sealed === session.slots.length ? `<button data-act="pack-later">${t('pack.later')}</button>` : ''}<button class="primary" data-act="pack-all" ${busy && !sealed ? 'disabled' : ''}>${t('pack.all')}</button>`;
+      : `${untouched ? `<button data-act="pack-later">${t('pack.later')}</button>` : ''}<button class="primary" data-act="pack-all" ${busy && !sealed ? 'disabled' : ''}>${t('pack.all')}</button>`;
     $('.stage-hint', stage()).style.visibility = done ? 'hidden' : '';
   }
 
@@ -211,39 +218,127 @@ window.HirelootArmory = (function () {
     return { w, isNew: before === 0, starUp: before > 0 && before < W.MAX_STARS, count: before + 1 };
   }
 
-  async function tear(i) {
-    if (!session) return;
-    const slot = session.slots[i];
-    if (!slot || slot.state !== 'sealed') return;
-    slot.state = 'busy';
-    const p = slot.pull = pull();
-    const r = p.w.rarity;
+  // ---------- 撕包 ----------
+  const TEAR_DONE = 0.82; // 撕过这个比例就算撕开
+  const slotEl = (i) => $(`.slot[data-slot="${i}"]`, stage());
+
+  // 第一次碰到卡包时就抽好（这样撕的时候缝里漏出的光就是稀有度的颜色）
+  function arm(i) {
+    const slot = session && session.slots[i];
+    if (!slot || (slot.state !== 'sealed' && slot.state !== 'tearing')) return null;
+    if (!slot.pull) {
+      slot.pull = pull();
+      const el = slotEl(i), r = slot.pull.w.rarity;
+      el.style.setProperty('--rc', RAR[r].color);
+      el.classList.add('r-' + r);
+    }
+    slot.state = 'tearing';
     renderActions();
-    const el = $(`.slot[data-slot="${i}"]`, stage());
-    const pack = $('.pack', el);
-    el.style.setProperty('--rc', RAR[r].color);
-    el.classList.add('r-' + r);
+    return slot;
+  }
 
-    // 1. 蓄力
-    const charge = { N: 520, R: 760, SR: 1150, SSR: 1700 }[r];
-    pack.classList.add('charging');
-    pack.disabled = true;
-    const ticks = Math.round(charge / 110);
-    for (let k = 0; k < ticks; k++) setTimeout(() => Sfx.tick(isHigh(r) ? k * 1.4 : k), (reduced() ? 0 : k * 110));
-    if (r === 'SSR') stage().classList.add('rumble');
-    await wait(charge);
+  // 设置撕开进度：像素化取整，每撕开一截响一声、掉一点纸屑
+  function setProgress(i, p) {
+    const el = slotEl(i), pack = el && $('.pack', el);
+    if (!pack) return;
+    const w = pack.offsetWidth || 1;
+    const px = Math.round((p * w) / 4) * 4;
+    p = Math.min(1, px / w);
+    const prev = +pack.dataset.p || 0;
+    pack.style.setProperty('--p', p.toFixed(3));
+    pack.dataset.p = p;
+    const step = Math.floor(p * 10), prevStep = Math.floor(prev * 10);
+    if (step > prevStep) {
+      Sfx.rip(p);
+      scraps(el, p);
+    }
+  }
 
-    // 2. 撕开
+  // 拖动撕包
+  let drag = null;
+  function bindDrag() {
+    stage().addEventListener('pointerdown', (e) => {
+      const pack = e.target.closest('.pack');
+      if (!pack || e.button > 0 || !session) return;
+      const i = +pack.dataset.i;
+      const slot = session.slots[i];
+      if (!slot || (slot.state !== 'sealed' && slot.state !== 'tearing')) return;
+      drag = { i, pack, x0: e.clientX, moved: false, w: pack.offsetWidth, base: +pack.dataset.p || 0 };
+      pack.setPointerCapture(e.pointerId);
+      pack.classList.add('grab');
+    });
+    stage().addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x0;
+      if (!drag.moved && Math.abs(dx) < 6) return;
+      if (!drag.moved) { drag.moved = true; if (!arm(drag.i)) { drag = null; return; } drag.pack.classList.add('dragging'); }
+      const p = Math.max(drag.base, Math.min(1, drag.base + dx / (drag.w * 0.9)));
+      setProgress(drag.i, p);
+      if (p >= TEAR_DONE) { const i = drag.i; endDrag(); finish(i); }
+    });
+    const end = () => {
+      if (!drag) return;
+      const { pack, moved } = drag;
+      endDrag();
+      if (moved) {
+        pack.dataset.dragged = '1'; // 吞掉松手后那次 click
+        // 没撕够：弹回去一点（已经撕开的口子保留在 0.15，有「撕了一半」的感觉）
+        const p = +pack.dataset.p || 0;
+        if (p < TEAR_DONE) { pack.classList.add('snap'); setProgress(+pack.dataset.i, Math.min(p, 0.15)); setTimeout(() => pack.classList.remove('snap'), 250); }
+      }
+    };
+    stage().addEventListener('pointerup', end);
+    stage().addEventListener('pointercancel', end);
+  }
+  function endDrag() {
+    if (!drag) return;
+    drag.pack.classList.remove('grab', 'dragging');
+    drag = null;
+  }
+
+  // 点一下 / 全部打开：自动撕一遍（同样的动画，只是程序替你拖）
+  async function autoTear(i) {
+    if (!arm(i)) return;
+    const el = slotEl(i), pack = $('.pack', el);
+    pack.classList.add('dragging');
+    let p = +pack.dataset.p || 0;
+    while (p < 1) {
+      p = Math.min(1, p + 0.1);
+      setProgress(i, p);
+      await wait(32);
+    }
+    pack.classList.remove('dragging');
+    finish(i);
+  }
+
+  async function finish(i) {
+    const slot = session && session.slots[i];
+    if (!slot || slot.state !== 'tearing') return;
+    slot.state = 'busy';
+    renderActions();
+    const p = slot.pull, r = p.w.rarity;
+    const el = slotEl(i), pack = $('.pack', el);
+
+    // 1. 撕开：包顶飞走，光柱冲出
     Sfx.tear();
+    pack.disabled = true;
     pack.classList.add('torn');
     el.classList.add('beam');
-    stage().classList.remove('rumble');
-    await wait(260);
+    burst(el, 'N', true);
+    await wait(240);
 
-    // 3. 卡牌升起、翻面
-    el.insertAdjacentHTML('beforeend', cardHtml(p.w, { count: p.count, flipped: false }).replace('class="card ', 'class="card rising '));
+    // 2. 卡牌背面朝上升起，按稀有度蓄力抖动、发光
+    el.insertAdjacentHTML('beforeend', cardHtml(p.w, { count: p.count, flipped: false }).replace('class="card ', 'class="card rising charging '));
     const card = $('.card', el);
-    await wait(420);
+    const charge = { N: 380, R: 600, SR: 1000, SSR: 1500 }[r];
+    const ticks = Math.round(charge / 110);
+    for (let k = 0; k < ticks; k++) setTimeout(() => Sfx.tick(isHigh(r) ? k * 1.4 : k), reduced() ? 0 : 200 + k * 110);
+    if (r === 'SSR') stage().classList.add('rumble');
+    await wait(charge);
+    stage().classList.remove('rumble');
+
+    // 3. 翻面
+    card.classList.remove('charging', 'rising');
     card.classList.add('flipped');
     pack.remove();
 
@@ -268,15 +363,28 @@ window.HirelootArmory = (function () {
 
   async function tearAll() {
     if (!session) return;
-    const idx = session.slots.map((s, i) => (s.state === 'sealed' ? i : -1)).filter((i) => i >= 0);
-    for (const i of idx) { tear(i); await wait(380); }
+    const idx = session.slots.map((s, i) => (s.state === 'sealed' || s.state === 'tearing' ? i : -1)).filter((i) => i >= 0);
+    for (const i of idx) { autoTear(i); await wait(450); }
   }
 
-  function burst(slotEl, r) {
-    const n = { N: 10, R: 16, SR: 26, SSR: 40 }[r];
-    const colors = r === 'SSR' ? ['#ffcf4a', '#ff6b9a', '#7fdbff', '#5fd35f', '#fff4c2'] : [RAR[r].color, '#ffffff', '#fff4c2'];
+  // 撕口处掉出的小纸屑
+  function scraps(el, p) {
+    const pack = $('.pack', el);
+    if (!pack || reduced()) return;
+    const b = document.createElement('i');
+    b.className = 'scrap';
+    b.style.left = (p * 100).toFixed(1) + '%';
+    b.style.setProperty('--dx', Math.round(Math.random() * 24 - 12) + 'px');
+    pack.appendChild(b);
+    setTimeout(() => b.remove(), 700);
+  }
+
+  function burst(slotEl, r, paper) {
+    const n = paper ? 12 : { N: 10, R: 16, SR: 26, SSR: 40 }[r];
+    const colors = paper ? ['#c77dff', '#d9d2b8', '#4a2a9a', '#ffcf4a']
+      : r === 'SSR' ? ['#ffcf4a', '#ff6b9a', '#7fdbff', '#5fd35f', '#fff4c2'] : [RAR[r].color, '#ffffff', '#fff4c2'];
     const box = document.createElement('div');
-    box.className = 'bits';
+    box.className = 'bits' + (paper ? ' paper' : '');
     for (let k = 0; k < n; k++) {
       const a = (k / n) * Math.PI * 2 + Math.random() * 0.4;
       const d = 90 + Math.random() * (isHigh(r) ? 160 : 90);
@@ -359,7 +467,9 @@ window.HirelootArmory = (function () {
   function handle(act, btn) {
     switch (act) {
       case 'open-packs': openStage(false); return true;
-      case 'pack-tear': tear(+btn.dataset.i); return true;
+      case 'pack-tear':
+        if (btn.dataset.dragged) { delete btn.dataset.dragged; return true; }
+        autoTear(+btn.dataset.i); return true;
       case 'pack-all': tearAll(); return true;
       case 'pack-later': case 'pack-done': closeStage(); return true;
       case 'pack-more': {
@@ -391,11 +501,12 @@ window.HirelootArmory = (function () {
   function init(api) {
     H = api;
     bindTilt();
+    bindDrag();
     viewer().addEventListener('click', (e) => { if (e.target === viewer()) closeViewer(); });
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       if (!viewer().hidden) { closeViewer(); e.stopPropagation(); }
-      else if (session && !stage().hidden && !session.slots.some((s) => s.state === 'busy')) closeStage();
+      else if (session && !stage().hidden && session.slots.every((s) => s.state === 'sealed' || s.state === 'open')) closeStage();
     }, true);
     render(H.computeStats());
   }
