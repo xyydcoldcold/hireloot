@@ -390,14 +390,18 @@
   }
 
   // ============ 动效 ============
-  function floatText(anchor, text, color) {
-    if (!text) return;
-    const r = anchor.getBoundingClientRect();
+  // 飘字的位置要在重新渲染之前量好：渲染后原来的按钮已被替换（不在页面上），量出来会是 (0, 0)
+  function anchorPoint(el) {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2 + window.scrollX, y: r.top + window.scrollY };
+  }
+  function floatText(pt, text, color) {
+    if (!text || !pt) return;
     const el = document.createElement('div');
     el.className = 'float';
     el.textContent = text;
-    el.style.left = (r.left + r.width / 2) + 'px';
-    el.style.top = (r.top + window.scrollY) + 'px';
+    el.style.left = pt.x + 'px';
+    el.style.top = pt.y + 'px';
     if (color) el.style.color = color;
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1200);
@@ -408,9 +412,10 @@
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   }
   function commit(anchor, text, color) {
+    const pt = anchor && anchor.isConnected ? anchorPoint(anchor) : null;
     save();
     const st = renderAll();
-    if (anchor) floatText(anchor, text, color);
+    floatText(pt, text, color);
     if (lastLevel !== null && st.lv > lastLevel) levelUp(st);
     lastLevel = st.lv;
   }
