@@ -1,4 +1,4 @@
-/* Hireloot —— 主逻辑（纯原生 JS，数据存在浏览器 localStorage） */
+/* Hireloot —— 主逻辑（纯原生 JS，数据存在浏览器 localStorage；登录后由 cloud.js 同步到云端） */
 (function () {
   'use strict';
 
@@ -79,7 +79,17 @@
     return emptyState();
   }
   let state = load();
-  function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  function save() {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    if (window.HirelootCloud) window.HirelootCloud.onSave(); // 登录了就排队上传
+  }
+  // 云端拉下来的存档整个替换本地（不触发升级动画、不回传云端）
+  function replaceState(s) {
+    state = s && Array.isArray(s.tasks) && Array.isArray(s.interviews) ? ensureArmory(s) : emptyState();
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    lastLevel = renderAll().lv;
+  }
+  const isEmptyState = (s = state) => !s.tasks.length && !s.interviews.length && !s.armory.opened;
 
   // ============ 工具 ============
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -203,6 +213,7 @@
     gear:   { map: ['....gg....', '.g.gggg.g.', '..gggggg..', '.gggkkggg.', 'gggk..kggg', 'gggk..kggg', '.gggkkggg.', '..gggggg..', '.g.gggg.g.', '....gg....'], pal: { g: '#d9d2b8', k: '#7d83c0' } },
     pack:   { map: ['kkkkkkkk', 'kwywywyk', 'kppppppk', 'kpPyyPpk', 'kpywwypk', 'kpyyyypk', 'kpPppPpk', 'kwywywyk', 'kkkkkkkk'], pal: { k: K, p: '#c77dff', P: '#9a4fd8', y: '#ffcf4a', w: '#fff4c2' } },
     chest:  { map: ['.kkkkkk.', 'kbbbbbbk', 'kbybbybk', 'kkkyykkk', 'kbbyybbk', 'kbybbybk', 'kbbbbbbk', 'kkkkkkkk'], pal: { k: K, b: '#a0622d', y: '#ffcf4a' } },
+    cloud:  { map: ['...kkk....', '..kwwwk...', '.kwwwwwkk.', '.kwwwwwwwk', 'kwwwwwwwwk', 'kwwwwwwwbk', '.kbbbbbbk.', '..kkkkkk..'], pal: { k: K, w: '#cfe3ff', b: '#7d9ad8' } },
     note:   { map: ['..kk....', '..kwk...', '..kwwk..', '..kk.k..', '..k.....', 'kkk.....', 'kkk.....'], pal: { k: '#d9d2b8', w: '#d9d2b8' } },
     none:   { map: ['kkkkkkkk', 'kwwwwwwk', 'kwkkkkwk', 'kwwwwwwk', 'kwkkkwwk', 'kwwwwwwk', 'kkkkkkkk'], pal: { k: K, w: '#a9a5c9' } }
   };
@@ -659,6 +670,7 @@
     showHint();
     renderAll();
     renderSettings();
+    if (window.HirelootCloud) window.HirelootCloud.rerender();
   }
 
   // 跨过午夜自动刷新“今天”
@@ -683,7 +695,10 @@
     CATEGORIES, CATEGORY_KEYS, EFFORT_KEYS, computeStats, getState: () => state, setLang,
     // 给 armory.js 用
     t, esc, icon, sprite, save, refresh: () => { save(); lastLevel = renderAll().lv; }, renderSettings,
-    getLang: () => lang, weaponName, starText
+    getLang: () => lang, weaponName, starText,
+    // 给 cloud.js 用
+    replaceState, isEmptyState, emptyState
   };
   if (window.HirelootArmory) window.HirelootArmory.init(window.Hireloot);
+  if (window.HirelootCloud) window.HirelootCloud.init(window.Hireloot);
 })();

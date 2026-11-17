@@ -43,7 +43,7 @@ Offer 什么时候来，你决定不了。但每天坚持出现，你可以。Hi
 
 ## 开始游戏
 
-不用注册，不用安装，也没有服务器。
+不用注册，不用安装，也没有服务器（想部署成网页、多设备同步也可以，见下文）。
 
 1. 下载这个仓库（绿色 **Code** 按钮 → **Download ZIP**），或者 `git clone`。
 2. 用浏览器打开 `index.html`，就可以开始了。
@@ -52,11 +52,31 @@ Offer 什么时候来，你决定不了。但每天坚持出现，你可以。Hi
 
 右上角的 ⚙ 按钮可以切换中文 / English，也可以导出、导入存档。
 
-**数据只存在你自己的电脑上。** 进度保存在浏览器的本地存储里，不会上传到任何地方。也正因如此，它只在这台电脑的这个浏览器里有效。换浏览器或清除网站数据前，记得先在设置里导出存档。
+**默认数据只存在你自己的电脑上。** 进度保存在浏览器的本地存储里，不会上传到任何地方。也正因如此，它只在这台电脑的这个浏览器里有效。换浏览器或清除网站数据前，记得先在设置里导出存档。想在多台设备上玩，可以按下面的步骤开启云存档。
+
+## 部署到网上：邮箱登录 + 云存档
+
+Hireloot 可以作为静态网页部署（比如 GitHub Pages），用 [Supabase](https://supabase.com) 免费档提供邮箱密码登录和每人一份的云存档，不用自己写后端。
+
+1. 在 Supabase 新建一个项目。
+2. 打开项目的 **SQL Editor**，把 [`supabase/schema.sql`](supabase/schema.sql) 整段粘进去运行。它会建 `saves` 表（每个用户一行 JSON 存档），并打开行级安全，每个人只能读写自己那一行。
+3. 打开 **Project Settings → API**，把 `Project URL` 和 `anon public` key 填进 [`config.js`](config.js)。anon key 是公开 key，可以提交到仓库；**千万不要填 `service_role` key**。
+4. 打开 **Authentication → URL Configuration**，把 **Site URL** 设成你的网址（例如 `https://你的用户名.github.io/hireloot/`），并加进 **Redirect URLs**。注册确认邮件和找回密码邮件里的链接会跳回这里。
+5. 部署：仓库 **Settings → Pages**，Source 选 `main` 分支根目录，保存后等一两分钟即可访问。
+
+开启后：
+
+- 打开网页会先出现登录框，也可以选“游客试玩”，存档只留在本机。游客存档在第一次登录时会自动搬进账号。
+- 登录后每次操作都会自动上传（断网时先存本地，联网后补传）。设置里能看到同步状态。
+- 两台设备都改过同一份存档时，会弹窗让你选保留云端还是本机，不会悄悄覆盖。
+- 退出登录会清掉这台设备上的存档缓存，数据仍在云端。
+- Supabase 免费档默认的发信服务每小时只能发几封邮件，正式给很多人用时，建议在 **Authentication → SMTP Settings** 接入自己的邮件服务（比如 Resend）。
+
+`config.js` 留空时，一切和以前一样，纯本地运行。
 
 ## 想自己改？
 
-Hireloot 只用了原生 HTML、CSS 和 JavaScript，没有构建步骤，也没有依赖。
+Hireloot 只用了原生 HTML、CSS 和 JavaScript，没有构建步骤。唯一的依赖 supabase-js 已放在 `vendor/`，只在开启云存档时才加载。
 
 | 文件 | 内容 |
 | --- | --- |
@@ -68,6 +88,10 @@ Hireloot 只用了原生 HTML、CSS 和 JavaScript，没有构建步骤，也没
 | `armory.js` | 开卡包动画、镭射卡面、8-bit 音效和武器库页面 |
 | `categorizer.js` | 打字时建议分类，目前是关键词规则。改写 `suggest(text)` 就能接入 LLM。 |
 | `fonts/` | TakWolf 的 [Fusion Pixel](https://github.com/TakWolf/fusion-pixel-font) 像素字体，SIL 开源字体许可（见 `fonts/OFL.txt`） |
+| `config.js` | 云存档配置（Supabase URL 和 anon key），留空就是纯本地 |
+| `cloud.js` | 邮箱登录、云存档同步和冲突处理 |
+| `supabase/schema.sql` | 云存档的数据库表和行级安全规则 |
+| `vendor/` | [supabase-js](https://github.com/supabase/supabase-js) 2.119.0，MIT 许可，只在开启云存档时加载 |
 
 接 LLM 时，让 `suggest(text)` 返回 `project`、`resume`、`apply`、`network`、`prep` 之一，或者 `null`。文件里有调用本地接口的示例。不要把 API Key 直接写进网页，建议通过本地小服务或者 Ollama 这类本地模型转发。
 

@@ -754,3 +754,37 @@ body.no-scroll { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .rays, .holo, .pack, .pack-foil, .shelf-pack, .pack-btn, .pack-cta, .sparkles i, .stage-hint, .slot.r-SSR .card.flipped { animation: none !important; }
 }
+
+/* ============ 登录 / 云存档 ============ */
+.set-label small { display: block; font-size: var(--s); color: #6a70a8; margin-top: 4px; }
+.set-label .acct-email { color: var(--ink); word-break: break-all; }
+.sync { display: inline-flex !important; align-items: center; gap: 6px; }
+.sync-synced { color: var(--green) !important; }
+.sync-offline, .sync-error { color: var(--red) !important; }
+.auth-modal .modal-win { width: min(420px, 100%); }
+.auth-tabs { margin-bottom: 16px; }
+.auth-tabs button { flex: 1; font-size: var(--m); padding: 8px 14px; }
+.auth-tabs button.active { background: var(--gold); color: var(--edge); text-shadow: none; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: var(--s); color: var(--muted); }
+.auth-form input { font-size: var(--m); color: var(--ink); width: 100%; }
+.auth-form button[type=submit] { padding: 10px 14px; }
+.auth-form button[disabled] { filter: grayscale(.6) brightness(.8); cursor: wait; }
+.auth-text { color: var(--muted); font-size: var(--s); line-height: 1.6; margin: 0 0 16px; }
+.auth-msg { margin: -4px 0 0; min-height: 18px; font-size: var(--s); line-height: 1.5; color: var(--red); }
+.auth-msg.ok { color: var(--green); }
+.auth-msg:empty { display: none; }
+button.linkish {
+  align-self: center; background: none; border: 0; box-shadow: none; padding: 2px 4px;
+  color: var(--muted); font-size: var(--s); text-decoration: underline; text-underline-offset: 4px; text-shadow: none;
+}
+button.linkish:hover { color: var(--gold); filter: none; }
+button.linkish:active { transform: none; box-shadow: none; }
+.auth-guest { margin-top: 18px; padding-top: 16px; border-top: 2px dashed #3a4190; text-align: center; }
+.auth-guest button { font-size: var(--s); }
+.auth-guest .hint { justify-content: center; text-align: center; }
+.conflict-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.conflict-opt { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 10px; }
+.conflict-opt b { font-weight: normal; }
+.conflict-opt small { font-size: var(--s); color: var(--muted); }
+@media (max-width: 420px) { .conflict-opts { grid-template-columns: 1fr; } }
