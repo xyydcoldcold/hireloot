@@ -214,6 +214,7 @@
     pack:   { map: ['kkkkkkkk', 'kwywywyk', 'kppppppk', 'kpPyyPpk', 'kpywwypk', 'kpyyyypk', 'kpPppPpk', 'kwywywyk', 'kkkkkkkk'], pal: { k: K, p: '#c77dff', P: '#9a4fd8', y: '#ffcf4a', w: '#fff4c2' } },
     chest:  { map: ['.kkkkkk.', 'kbbbbbbk', 'kbybbybk', 'kkkyykkk', 'kbbyybbk', 'kbybbybk', 'kbbbbbbk', 'kkkkkkkk'], pal: { k: K, b: '#a0622d', y: '#ffcf4a' } },
     cloud:  { map: ['...kkk....', '..kwwwk...', '.kwwwwwkk.', '.kwwwwwwwk', 'kwwwwwwwwk', 'kwwwwwwwbk', '.kbbbbbbk.', '..kkkkkk..'], pal: { k: K, w: '#cfe3ff', b: '#7d9ad8' } },
+    pencil: { map: ['.....kk', '....kyk', '...kyk.', '..kyk..', '.kyk...', 'kwk....', 'kk.....'], pal: { k: '#9ea4d8', y: '#9ea4d8', w: '#9ea4d8' } },
     note:   { map: ['..kk....', '..kwk...', '..kwwk..', '..kk.k..', '..k.....', 'kkk.....', 'kkk.....'], pal: { k: '#d9d2b8', w: '#d9d2b8' } },
     none:   { map: ['kkkkkkkk', 'kwwwwwwk', 'kwkkkkwk', 'kwwwwwwk', 'kwkkkwwk', 'kwwwwwwk', 'kkkkkkkk'], pal: { k: K, w: '#a9a5c9' } }
   };
@@ -312,6 +313,7 @@
   function renderHero(st) {
     const armor = tier(ARMORS, st.def);
     $('#hero').innerHTML = `
+      ${heroName()}
       <div class="hero-top">
         <div class="avatar">${heroSprite(st)}</div>
         <div class="lv-box">
@@ -344,8 +346,54 @@
     // 称号太长放不下一行时，换小一号字，不折行
     const ribbon = $('#hero .title');
     if (ribbon && ribbon.scrollWidth > ribbon.clientWidth) ribbon.classList.add('tight');
+    // 名字太长也一样换小一号字，还放不下才显示省略号
+    const nm = $('#hero .hero-name .nm');
+    if (nm && nm.scrollWidth > nm.clientWidth) nm.parentNode.classList.add('tight');
   }
 
+
+  // ============ 角色名字（存在存档里，跟着云存档同步） ============
+  const NAME_MAX = 12;
+  const getName = () => (state.profile && typeof state.profile.name === 'string' ? state.profile.name : '');
+  function heroName() {
+    const n = getName();
+    return `<button class="hero-name ${n ? '' : 'unnamed'}" data-act="rename" title="${esc(t('hero.rename'))}" aria-label="${esc(t('hero.rename'))}">
+      <span class="nm">${esc(n || t('hero.noName'))}</span>${icon('pencil', 2)}</button>`;
+  }
+  const cleanName = (v) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+  function setName(v) {
+    v = cleanName(v);
+    if (v === getName()) return false;
+    state.profile = { ...(state.profile || {}), name: v };
+    commit();
+    return true;
+  }
+  function startRename(btn) {
+    const input = document.createElement('input');
+    input.className = 'hero-name-input';
+    input.maxLength = NAME_MAX;
+    input.value = getName();
+    input.placeholder = t('hero.namePh');
+    input.setAttribute('aria-label', t('hero.rename'));
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    btn.replaceWith(input);
+    input.focus();
+    input.select();
+    let done = false;
+    const finish = (keep) => {
+      if (done) return;
+      done = true;
+      if (!(keep && setName(input.value))) renderHero(computeStats());
+      const b = $('#hero .hero-name');
+      if (b) b.focus();
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+    });
+    input.addEventListener('blur', () => finish(true));
+  }
 
   function taskRow(task, today) {
     const c = CATEGORIES[task.category] || CATEGORIES.none;
@@ -531,6 +579,7 @@
     if (act === 'use-suggest') { setPicker(sel, suggestion); showHint(); input.focus(); return; }
     if (window.HirelootArmory && window.HirelootArmory.handle(act, btn, e)) return;
 
+    if (act === 'rename') { startRename(btn); return; }
     if (act === 'toggle') {
       const task = state.tasks.find((x) => x.id === id);
       if (!task) return;
@@ -697,7 +746,7 @@
     t, esc, icon, sprite, save, refresh: () => { save(); lastLevel = renderAll().lv; }, renderSettings,
     getLang: () => lang, weaponName, starText,
     // 给 cloud.js 用
-    replaceState, isEmptyState, emptyState
+    replaceState, isEmptyState, emptyState, getName, setName, titleName, NAME_MAX
   };
   if (window.HirelootArmory) window.HirelootArmory.init(window.Hireloot);
   if (window.HirelootCloud) window.HirelootCloud.init(window.Hireloot);

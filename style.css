@@ -374,6 +374,24 @@ details[open] > summary::before { transform: rotate(90deg); }
 .lv-box { flex: 1; min-width: 0; text-align: center; }
 .lv-box small { display: block; font-size: var(--s); color: var(--muted); letter-spacing: 3px; margin-bottom: 6px; }
 .lv-box .lv { font-size: 36px; }
+/* 角色名字：点一下就能改 */
+.hero-name, .hero-name-input {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; height: 40px; margin: -4px 0 12px; padding: 0 10px;
+  font-size: var(--l); line-height: 1; text-align: center;
+}
+.hero-name {
+  background: none; border: 0; box-shadow: none; color: var(--ink); text-shadow: 2px 2px 0 var(--edge);
+  border-bottom: 2px dashed transparent;
+}
+.hero-name .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero-name .ico { flex: none; opacity: .55; }
+.hero-name:hover { filter: none; border-bottom-color: #3a4190; }
+.hero-name:hover .ico, .hero-name:focus-visible .ico { opacity: 1; }
+.hero-name:active { transform: none; box-shadow: none; }
+.hero-name.unnamed, .hero-name.tight { font-size: var(--m); }
+.hero-name.unnamed { color: var(--muted); }
+.hero-name-input { display: block; color: var(--ink); background: var(--deep); }
 .title {
   position: relative; margin: 0 0 18px; padding: 6px 30px 8px; text-align: center;
   font-size: var(--m); line-height: 1.3; color: var(--edge);
@@ -792,3 +810,23 @@ button.linkish:active { transform: none; box-shadow: none; }
 .conflict-opt b { font-weight: normal; }
 .conflict-opt small { font-size: var(--s); color: var(--muted); }
 @media (max-width: 420px) { .conflict-opts { grid-template-columns: 1fr; } }
+
+/* 老用户登录：顶部滑下来的欢迎条 */
+.welcome-toast {
+  position: fixed; left: 50%; top: 18px; z-index: 300; transform: translate(-50%, -160%);
+  min-width: 260px; max-width: calc(100vw - 32px); padding: 14px 26px 16px; text-align: center;
+  background: var(--win); border: 4px solid var(--edge); pointer-events: none;
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 6px var(--edge), 6px 6px 0 rgba(0,0,0,.5);
+}
+.welcome-toast b { display: block; font-weight: normal; font-size: var(--l); color: var(--gold); text-shadow: 2px 2px 0 var(--edge); overflow-wrap: anywhere; }
+.welcome-toast small { display: block; margin-top: 8px; font-size: var(--s); color: var(--muted); }
+.welcome-toast.show { animation: toast-in 3.2s steps(8) forwards; }
+@keyframes toast-in {
+  0% { transform: translate(-50%, -160%); }
+  12%, 85% { transform: translate(-50%, 0); }
+  100% { transform: translate(-50%, -160%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-toast.show { animation: toast-fade 3.2s forwards; transform: translate(-50%, 0); }
+  @keyframes toast-fade { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+}
