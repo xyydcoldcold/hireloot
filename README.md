@@ -4,10 +4,11 @@
 
 **A pixel-game-style to-do list that makes every job-hunting effort count.**
 
+### ▶ [Play now at hireloot.com](https://hireloot.com)
+
 <a href="README.md"><img src="docs/btn-en-active.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh.png" alt="简体中文" height="38"></a>
 
 <img alt="No install" src="https://img.shields.io/badge/install-none-ffcf4a?style=flat-square">
-<a href="https://hireloot.com"><img alt="Play at hireloot.com" src="https://img.shields.io/badge/play-hireloot.com-3ddc97?style=flat-square"></a>
 <img alt="Cloud saves" src="https://img.shields.io/badge/saves-cloud_or_local-c77dff?style=flat-square">
 <img alt="English and Chinese" src="https://img.shields.io/badge/lang-EN_%7C_%E4%B8%AD%E6%96%87-4ea8de?style=flat-square">
 
@@ -40,18 +41,6 @@ You can't control when the offer comes. You can control showing up every day. Hi
 **5. Look back.** The Adventure Log files every finished quest by day, so on the slow weeks you can see how much you've actually done.
 
 ![Boss fights](docs/en-boss.png)
-
-## Start playing
-
-**Play in your browser: [hireloot.com](https://hireloot.com)**
-
-Sign up with your email and password and your save lives in the cloud, so you can pick up on your laptop or your phone. Not ready to sign up? Choose **Play as guest**: your save stays in that browser, and moves into your account the first time you sign in.
-
-Bookmark the page and open it each morning.
-
-The ⚙ button in the top right switches between English and 中文, shows your account and sync status, and lets you export or import your save.
-
-Prefer to keep everything offline? Download this repository (green **Code** button → **Download ZIP**) and open `index.html` in your browser. Without an internet connection the game runs fully local, and your progress stays in that browser's local storage.
 
 ## For tinkerers
 
