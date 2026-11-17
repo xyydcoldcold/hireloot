@@ -31,7 +31,7 @@ You can't control when the offer comes. You can control showing up every day. Hi
 
 | Effort | Reward per quest | What it grows |
 | --- | --- | --- |
-| ⚔ Project | +3 ATK, +20 EXP | Your weapon: Bare Hands → Wooden Sword → … → Legendary Blade |
+| ⚔ Project | +3 ATK, +20 EXP | Builds ATK (weapons come from level-up packs) |
 | 🛡 Resume | +3 DEF, +15 EXP | Your armor: Cloth → Leather → … → Dragon Scale |
 | ✉ Applications | +30 EXP | The fastest way to level up |
 | ❤ Networking | +2 CHA, +1 Ally, +15 EXP | Every conversation recruits an ally |
