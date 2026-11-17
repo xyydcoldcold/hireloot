@@ -370,3 +370,5 @@ details[open] > summary::before { transform: rotate(90deg); }
 .lang-btn.active { background: var(--gold); color: var(--edge); text-shadow: none; }
 .hint:empty { display: none; }
 @media (prefers-reduced-motion: reduce) { .gear:hover .ico { animation: none; } }
+.hero-top > div:last-child { min-width: 0; }
+.title { max-width: 100%; }
