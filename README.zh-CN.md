@@ -7,8 +7,8 @@
 <a href="README.md"><img src="docs/btn-en.png" alt="English" height="38"></a>&nbsp;&nbsp;<a href="README.zh-CN.md"><img src="docs/btn-zh-active.png" alt="简体中文" height="38"></a>
 
 <img alt="无需安装" src="https://img.shields.io/badge/%E5%AE%89%E8%A3%85-%E6%97%A0%E9%9C%80-ffcf4a?style=flat-square">
-<img alt="零依赖" src="https://img.shields.io/badge/%E4%BE%9D%E8%B5%96-0-3ddc97?style=flat-square">
-<img alt="数据只存本地" src="https://img.shields.io/badge/%E6%95%B0%E6%8D%AE-%E5%8F%AA%E5%AD%98%E6%9C%AC%E5%9C%B0-c77dff?style=flat-square">
+<a href="https://hireloot.com"><img alt="在线玩 hireloot.com" src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E7%8E%A9-hireloot.com-3ddc97?style=flat-square"></a>
+<img alt="云存档或本地" src="https://img.shields.io/badge/%E5%AD%98%E6%A1%A3-%E4%BA%91%E7%AB%AF%E6%88%96%E6%9C%AC%E5%9C%B0-c77dff?style=flat-square">
 <img alt="中英文" src="https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%E6%96%87_%7C_EN-4ea8de?style=flat-square">
 
 <br>
@@ -43,7 +43,7 @@ Offer 什么时候来，你决定不了。但每天坚持出现，你可以。Hi
 
 ## 开始游戏
 
-**直接在浏览器里玩：[xyydcoldcold.github.io/hireloot](https://xyydcoldcold.github.io/hireloot/)**
+**直接在浏览器里玩：[hireloot.com](https://hireloot.com)**
 
 用邮箱和密码注册，存档就保存在云端，电脑和手机都能接着玩。暂时不想注册，可以选 **游客试玩**：存档只留在这个浏览器里，之后第一次登录时会自动搬进账号。
 
