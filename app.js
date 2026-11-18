@@ -50,6 +50,8 @@
   }
   const catLabel = (k) => t('cat.' + (CATEGORIES[k] ? k : 'none'));
   const titleName = (lv) => t('titles')[tier(TITLES, lv)[1]];
+  // 等级越高，头像背景越华丽：和称号同一套门槛（1/3/5/8/12/16/20 级），配色在 style.css
+  const portraitBg = (lv) => tier(TITLES, lv)[1];
   // 旧存档里轮次存的是中文，这里兼容
   const LEGACY_ROUNDS = { '笔试 / OA': 'oa', '电话面': 'phone', '一面': 'r1', '二面': 'r2', '三面': 'r3', '终面': 'final', 'HR 面': 'hr', '其他': 'other' };
   function roundLabel(r) {
@@ -162,24 +164,47 @@
   function intBonus(int) { return Math.min(100, Math.floor(int / 3) * 5); }
 
   // ============ 像素小人 ============
+  // 主角本体，手里的武器另外叠上去（见 HELD）
   const HERO = [
-    '.....hhhhh......',
-    '....hHhhhhh.....',
-    '....hsssssh...w.',
-    '....sesssess..w.',
-    '....sssssss...w.',
-    '.....ssmss....w.',
-    '...aaaaaaaaa..w.',
-    '..aaAaaaaaAaa.w.',
-    '..sa.aaaaa.asswg',
-    '..s..AaaaA...ggg',
-    '.....yyyyy....g.',
-    '.....pp.pp......',
-    '.....pp.pp......',
-    '.....pp.pp......',
-    '....bbb.bbb.....',
-    '................'
+    '.....hhhhh.......',
+    '....hHhhhhh......',
+    '....hsssssh......',
+    '....sesssess.....',
+    '....sssssss......',
+    '.....ssmss.......',
+    '...aaaaaaaaa.....',
+    '..aaAaaaaaAaa....',
+    '..sa.aaaaa.ass...',
+    '..s..AaaaA.......',
+    '.....yyyyy.......',
+    '.....pp.pp.......',
+    '.....pp.pp.......',
+    '.....pp.pp.......',
+    '....bbb.bbb......',
+    '.................'
   ];
+  // 拿在右手里的小号武器，按 weapons.js 的造型分。每行 5 格，对应主角第 12–16 列，
+  // [起始行, 像素]；第 8 行是手的位置。颜色字母和 weapons.js 的调色板一样。
+  const HAND = (n) => Array.from({ length: n }, (_, i) => (i % 2 ? '..H..' : '..h..'));
+  const HELD = {
+    sword:      [1, ['..l..', '.lb..', '.lb..', '.lb..', '.lb..', '.lb..', 'gGeGg', '..h..', '..H..', '..e..']],
+    dagger:     [4, ['..l..', '.lb..', '.lb..', '.gGg.', '..h..', '..e..']],
+    greatsword: [0, ['..l..', '.lbd.', '.lbd.', '.lbd.', '.leb.', '.lbd.', '.lbd.', 'ggegg', '..h..', '..H..', '.geg.']],
+    katana:     [1, ['...l.', '...b.', '..lb.', '..lb.', '..b..', '..b..', '.gGg.', '..h..', '..H..', '..h..', '..H..']],
+    axe:        [1, ['..dl.', '.ghbl', '..hbl', '..hbd', '..hd.', ...HAND(5), '..g..']],
+    spear:      [0, ['..l..', '.lbd.', '..d..', '..g..', ...HAND(9), '..g..']],
+    hammer:     [1, ['.lbd.', 'lbbbd', 'lbebd', '.dgd.', ...HAND(5), '..g..']],
+    staff:      [0, ['..E..', '.eEe.', '.geg.', '..g..', ...HAND(9), '..g..']],
+    wand:       [2, ['..E..', '.EeE.', '..e..', '..g..', '..h..', '..h..', '..H..', '..g..']],
+    bow:        [2, ['.hh..', 'w..h.', 'w...h', 'w...h', 'w...h', 'w...h', 'w..gg', 'w...h', 'w...h', 'w...h', 'w...h', 'w..h.', '.hh..']],
+    scythe:     [0, ['.lbbg', 'lbd.h', 'b...h', '....h', '....H', '....h', '....H', '....h', '....H', '....h', '....H', '....h', '....g']],
+    trident:    [0, ['l.l.l', 'b.b.b', 'ggegg', '..g..', ...HAND(9), '..g..']],
+    mace:       [2, ['..l..', '.lbd.', 'lbebd', '.bdd.', '..g..', '..h..', '..H..', '..h..', '..g..']],
+    rapier:     [0, ['..l..', '..b..', '..b..', '..b..', '..b..', '..b..', '..b..', '.ggg.', '.g.g.', '..h..', '..e..']],
+    quill:      [0, ['...lb', '..lbb', '..lbd', '.lbd.', '.lbd.', '.bd..', '..g..', '..g..', '..G..']]
+  };
+  // 武器调色板的字母换成数字，免得和主角的颜色字母撞车
+  const HELD_KEYS = { l: '1', b: '2', d: '3', g: '4', G: '5', h: '6', H: '7', e: '8', E: '9', w: '0' };
   const BOSS = [
     '...r........r...',
     '...rr......rr...',
@@ -278,7 +303,8 @@
     return '#' + [n >> 16, (n >> 8) & 255, n & 255].map((v) => ch(v).toString(16).padStart(2, '0')).join('');
   }
   // outline: 自动给精灵描一圈黑边
-  function sprite(map, palette, size, outline) {
+  // layers：{ 字符集合: [class, ...] }，属于这些颜色的像素放进单独的 <g>，好让 CSS 给它加动画
+  function sprite(map, palette, size, outline, layers) {
     if (outline) {
       const W = Math.max(...map.map((r) => r.length));
       const grid = ['.'.repeat(W + 2), ...map.map((r) => '.' + r.padEnd(W, '.') + '.'), '.'.repeat(W + 2)];
@@ -289,22 +315,59 @@
     }
     const h = map.length, w = Math.max(...map.map((r) => r.length));
     let rects = '';
+    const extra = {};
     map.forEach((row, y) => [...row].forEach((ch, x) => {
       const c = palette[ch];
-      if (c) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`;
+      if (!c) return;
+      const r = `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`;
+      const cls = layers && Object.keys(layers).find((k) => k.includes(ch));
+      if (cls) extra[cls] = (extra[cls] || '') + r; else rects += r;
     }));
-    return `<svg viewBox="0 0 ${w} ${h}" width="${w * size}" height="${h * size}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+    const groups = Object.keys(extra).map((k) => `<g class="${layers[k]}">${extra[k]}</g>`).join('');
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w * size}" height="${h * size}" shape-rendering="crispEdges" aria-hidden="true">${rects}${groups}</svg>`;
   }
+  // 把武器叠到主角右手上：只画在空白格里，手和身体会挡在武器前面
+  function holdWeapon(map, shape) {
+    const held = HELD[shape] || HELD.sword;
+    const [top, rows] = held;
+    return map.map((row, y) => {
+      const wr = rows[y - top];
+      if (!wr) return row;
+      return [...row].map((ch, x) => {
+        const wc = wr[x - 12];
+        return ch === '.' && wc && wc !== '.' ? HELD_KEYS[wc] : ch;
+      }).join('');
+    });
+  }
+  // SR / SSR 武器周围的闪光（不描边，单独一层做闪烁动画）
+  const SPARKS = { SR: [[10, 0], [15, 11]], SSR: [[10, 0], [15, 11], [0, 4], [1, 10]] };
   function heroSprite(st) {
     const armor = tier(ARMORS, st.def);
-    // 装备了武器库里的武器：剑身/剑柄换成它的配色；没装备就是赤手空拳
-    const wp = st.weapon && W.PALETTES[st.weapon.pal];
-    const blade = wp ? wp.b : null, hilt = wp ? wp.g : null;
-    return sprite(HERO, {
+    const pal = {
       h: '#3b2a1a', s: '#f1c27d', e: '#1b1a2b', m: '#c0392b',
-      a: armor[2], A: shade(armor[2], 0.72), y: '#f2c14e', p: '#2c3e70', b: '#3b2a1a', H: '#6b4a2b',
-      w: blade, g: hilt
-    }, 8, '#0c0b16');
+      a: armor[2], A: shade(armor[2], 0.72), y: '#f2c14e', p: '#2c3e70', b: '#3b2a1a', H: '#6b4a2b'
+    };
+    // 装备了武器库里的武器：手上拿的就是它的造型 + 配色；没装备就是赤手空拳
+    const wpn = st.weapon;
+    let map = HERO, layers;
+    if (wpn) {
+      const wp = W.PALETTES[wpn.pal];
+      Object.keys(HELD_KEYS).forEach((k) => { pal[HELD_KEYS[k]] = wp[k]; });
+      map = holdWeapon(HERO, wpn.shape);
+      layers = { '1234567890': 'held' };
+    }
+    let svg = sprite(map, pal, 8, '#0c0b16', layers);
+    const sparks = wpn && SPARKS[wpn.rarity];
+    if (sparks) {
+      // 外面描了一圈边，所以坐标 +1
+      const c = W.RARITIES[wpn.rarity].color;
+      const dots = sparks.map(([x, y], i) =>
+        `<g class="spark s${i % 2}"><rect x="${x + 1}" y="${y + 1}" width="1" height="1" fill="#fff"/>` +
+        `<rect x="${x}" y="${y + 1}" width="1" height="1" fill="${c}"/><rect x="${x + 2}" y="${y + 1}" width="1" height="1" fill="${c}"/>` +
+        `<rect x="${x + 1}" y="${y}" width="1" height="1" fill="${c}"/><rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${c}"/></g>`).join('');
+      svg = svg.replace('</svg>', dots + '</svg>');
+    }
+    return svg;
   }
   function bossSprite(result) {
     const body = result === 'pass' ? '#6b6b7b' : result === 'fail' ? '#b23a48' : '#8e44ad';
@@ -319,7 +382,7 @@
     $('#hero').innerHTML = `
       ${heroName()}
       <div class="hero-top">
-        <div class="avatar">${heroSprite(st)}</div>
+        <div class="avatar" data-bg="${portraitBg(st.lv)}"${st.weapon ? ` data-rarity="${st.weapon.rarity}"` : ''}>${heroSprite(st)}</div>
         <div class="lv-box">
           <small>LEVEL</small>
           <div class="lv">${st.lv}</div>

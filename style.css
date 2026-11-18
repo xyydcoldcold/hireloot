@@ -133,8 +133,6 @@ h2::before { content: "▶"; color: var(--gold); font-size: var(--s); margin-rig
   position: relative; flex: none; width: 160px; height: 172px;
   display: grid; place-items: end center; padding-bottom: 14px;
   border: 3px solid var(--edge);
-  background: linear-gradient(180deg, #3a4a9c 0%, #5a74c8 58%, #3e8a46 58%, #2f6e38 100%);
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
   overflow: hidden;
 }
 .avatar::before { /* 云 */
@@ -149,6 +147,31 @@ h2::before { content: "▶"; color: var(--gold); font-size: var(--s); margin-rig
 }
 .avatar svg { position: relative; z-index: 1; display: block; animation: bob 1.2s steps(2) infinite; }
 @keyframes bob { 50% { transform: translateY(-4px); } }
+
+/* 头像背景随等级变：蓝天 → 翠林 → 星夜 → 紫晶 → 橙霞 → 赤焰 → 金辉（门槛同称号） */
+.avatar { --sky1: #3a4a9c; --sky2: #5a74c8; --gnd1: #3e8a46; --gnd2: #2f6e38; --glow: rgba(255,255,255,.12); --deco: rgba(255,255,255,.55); --deco2: rgba(255,255,255,.35);
+  background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 58%, var(--gnd1) 58%, var(--gnd2) 100%);
+  box-shadow: inset 0 0 0 2px var(--glow); }
+.avatar[data-bg="1"] { --sky1: #1f5a5a; --sky2: #4fae8a; --gnd1: #2d6e38; --gnd2: #1f4a26; }
+.avatar[data-bg="2"] { --sky1: #0c1440; --sky2: #2c4aa8; --gnd1: #2a3a6e; --gnd2: #1a264a; --glow: rgba(127,219,255,.35); }
+.avatar[data-bg="3"] { --sky1: #2a0e5a; --sky2: #8a4ac8; --gnd1: #5a2a8a; --gnd2: #3a1a5e; --glow: rgba(199,125,255,.6); --deco: #f3d9ff; --deco2: rgba(243,217,255,.6); }
+.avatar[data-bg="4"] { --sky1: #8a2a3a; --sky2: #ff9a3c; --gnd1: #a8541c; --gnd2: #6e3010; --glow: rgba(255,154,60,.7); --deco: rgba(255,240,200,.75); --deco2: rgba(255,224,160,.5); }
+.avatar[data-bg="5"] { --sky1: #2a0610; --sky2: #b0203a; --gnd1: #3a1014; --gnd2: #1a0608; --glow: rgba(255,74,58,.75); --deco: #ffcf4a; --deco2: #ff7a3c; }
+.avatar[data-bg="6"] { --sky1: #6e4a08; --sky2: #ffd86a; --gnd1: #c58b3a; --gnd2: #8a5a1e; --glow: rgba(255,226,122,.9); --deco: #ffffff; --deco2: #fff4c2; }
+/* 星夜 / 紫晶 / 金辉：云换成星星；赤焰：飘火星 */
+.avatar[data-bg="2"]::before, .avatar[data-bg="3"]::before, .avatar[data-bg="5"]::before, .avatar[data-bg="6"]::before {
+  top: 14px; left: 14px; width: 3px; height: 3px; background: var(--deco);
+  box-shadow: 22px 12px 0 var(--deco2), 40px 2px 0 var(--deco), 70px 22px 0 var(--deco2), 96px 6px 0 var(--deco),
+    118px 26px 0 var(--deco2), 128px 0 0 var(--deco), 8px 40px 0 var(--deco2), 112px 50px 0 var(--deco2), 56px 44px 0 var(--deco2);
+  animation: twinkle 1.6s steps(2) infinite;
+}
+.avatar[data-bg="5"]::before { top: auto; bottom: 40px; animation: embers 2.4s steps(6) infinite; }
+.avatar[data-bg="6"] { border-color: var(--gold-dk); }
+@keyframes twinkle { 50% { opacity: .45; } }
+@keyframes embers { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-60px); opacity: .2; } }
+/* SR / SSR 武器的闪光 */
+.avatar .spark { animation: twinkle 1s steps(2) infinite; }
+.avatar .spark.s1 { animation-delay: -.5s; }
 .lv { font-size: 36px; line-height: 1; color: var(--gold); text-shadow: 3px 3px 0 var(--gold-dk), 5px 5px 0 var(--edge); }
 .bar-label { display: flex; justify-content: space-between; font-size: var(--s); color: var(--muted); margin-bottom: 4px; }
 .bar { height: 20px; border: 3px solid var(--edge); background: #0a0a20; box-shadow: inset 0 3px 0 rgba(0,0,0,.4); }
@@ -286,7 +309,7 @@ details[open] > summary::before { transform: rotate(90deg); }
   100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .avatar svg, .boss.pending .boss-sprite svg { animation: none; }
+  .avatar svg, .boss.pending .boss-sprite svg, .avatar::before, .avatar .spark { animation: none; }
 }
 
 /* ============ 像素图标 ============ */
@@ -347,6 +370,7 @@ details[open] > summary::before { transform: rotate(90deg); }
   .del { padding: 4px 6px; }
   .hero { padding: 16px; }
   .avatar { width: 140px; }
+  .avatar svg { width: 133px; height: auto; } /* 手上拿武器后画布变宽，手机上按 7px 一格缩一点，免得武器被裁掉 */
 }
 
 /* ============ 设置 ============ */
