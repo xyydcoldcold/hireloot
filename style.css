@@ -208,6 +208,8 @@ details > summary::-webkit-details-marker { display: none; }
 details > summary::before { content: "▶"; display: inline-block; margin-right: 10px; color: var(--gold); font-size: var(--s); transition: transform .15s steps(2); }
 details[open] > summary::before { transform: rotate(90deg); }
 .done-panel .task { opacity: .85; }
+/* 打开下拉框的那一行要浮到其它任务上面（opacity 会单独建层叠上下文，菜单会被后面的任务盖住） */
+.task:has(.picker.open) { position: relative; z-index: 41; opacity: 1; }
 
 /* ============ Boss ============ */
 .boss-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
