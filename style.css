@@ -84,6 +84,10 @@ input, select {
 }
 input::placeholder { color: #6a70a8; }
 input[type=date] { color-scheme: dark; }
+/* iOS Safari 的日期框自带一个很宽的最小宽度，会把整列表单撑出屏幕；去掉原生外观、让它跟其它输入框一样宽 */
+input[type=date] { -webkit-appearance: none; appearance: none; display: block; width: 100%; max-width: 100%; min-height: 44px; text-align: left; }
+input[type=date]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+fieldset { min-width: 0; min-inline-size: 0; }
 input:focus, select:focus, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
 
 /* ============ 顶栏 ============ */
@@ -193,8 +197,9 @@ h2::before { content: "▶"; color: var(--gold); font-size: var(--s); margin-rig
 .equip small { display: block; color: var(--muted); font-size: var(--s); }
 
 /* ============ 添加任务 ============ */
-.add-form { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; }
-@media (max-width: 600px) { .add-form { grid-template-columns: 1fr auto; } .add-form input { grid-column: 1 / -1; } }
+.add-form { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; }
+.add-form > * { min-width: 0; }
+@media (max-width: 600px) { .add-form { grid-template-columns: minmax(0, 1fr) auto; } .add-form input { grid-column: 1 / -1; } }
 
 /* ============ 任务列表 ============ */
 .tasks { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
@@ -235,7 +240,9 @@ details[open] > summary::before { transform: rotate(90deg); }
 .task.menu-open, .task:has(.picker.open) { position: relative; z-index: 41; opacity: 1; }
 
 /* ============ Boss ============ */
-.boss-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.boss-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.boss-form > * { min-width: 0; }
+.boss-form > label > input { width: 100%; }
 .boss-form label, .boss-form .field { display: flex; flex-direction: column; gap: 6px; font-size: var(--s); color: var(--muted); }
 .boss-form label input, .boss-form .field .picker-btn { color: var(--ink); font-size: var(--m); }
 .boss-form .wide { grid-column: 1 / -1; }
@@ -247,7 +254,7 @@ details[open] > summary::before { transform: rotate(90deg); }
 .result legend { color: var(--muted); font-size: var(--s); padding: 0 6px; background: var(--edge); }
 .result label { flex-direction: row; align-items: center; gap: 2px; color: var(--ink); font-size: var(--m); cursor: pointer; }
 .result input { accent-color: var(--gold); width: 18px; height: 18px; }
-@media (max-width: 680px) { .boss-form { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .boss-form { grid-template-columns: minmax(0, 1fr); } }
 .boss-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
 .boss { display: flex; gap: 18px; padding: 18px 20px; align-items: flex-start; }
 .boss-sprite {
