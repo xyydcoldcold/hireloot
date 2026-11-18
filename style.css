@@ -759,6 +759,8 @@ body.no-scroll { overflow: hidden; }
 
 /* 武器详情 */
 .card-modal { z-index: 250; }
+/* 手机上手指在详情里滑动：交给卡牌倾斜，不让浏览器拿去滚动背后的页面 */
+.card-modal:not([hidden]) { touch-action: none; overscroll-behavior: contain; }
 .viewer { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .viewer .card { --cw: min(280px, 72vw); }
 .viewer-actions { display: flex; gap: 12px; }
