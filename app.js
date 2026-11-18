@@ -59,6 +59,7 @@
 
   // ============ 存储 ============
   const STORE_KEY = 'hireloot.v1';
+  const Dialog = window.HirelootDialog;
   function emptyState() { return ensureArmory({ version: 1, tasks: [], interviews: [] }); }
   // 武器库存档：owned = { 武器id: 抽到次数 }，opened = 已开卡包数，pity = 距上次 SR 以上的包数
   function ensureArmory(s) {
@@ -588,9 +589,12 @@
       else { task.doneDate = ymd(); task.doneAt = Date.now(); commit(btn, rewardText(c.reward), c.color); }
     } else if (act === 'del') {
       const task = state.tasks.find((x) => x.id === id);
-      if (task && confirm(t('task.delConfirm', { t: task.title }) + (task.doneDate ? t('task.delConfirmDone') : ''))) {
-        state.tasks = state.tasks.filter((x) => x.id !== id); commit();
-      }
+      if (!task) return;
+      Dialog.confirm({
+        title: t('task.delTitle'), body: t('task.delConfirm', { t: task.title }),
+        note: task.doneDate ? t('task.delConfirmDone') : '',
+        ok: t('task.del'), cancel: t('dlg.cancel'), danger: true
+      }).then((ok) => { if (ok) { state.tasks = state.tasks.filter((x) => x.id !== id); commit(); } });
     } else if (act === 'boss-pass' || act === 'boss-fail') {
       const iv = state.interviews.find((x) => x.id === id);
       if (!iv) return;
@@ -598,9 +602,11 @@
       commit(btn, rewardText(bossReward(iv)), iv.result === 'pass' ? '#f2c14e' : '#ff8a80');
     } else if (act === 'boss-del') {
       const iv = state.interviews.find((x) => x.id === id);
-      if (iv && confirm(t('boss.delConfirm', { c: iv.company, r: roundLabel(iv.round) }))) {
-        state.interviews = state.interviews.filter((x) => x.id !== id); commit();
-      }
+      if (!iv) return;
+      Dialog.confirm({
+        title: t('boss.delTitle'), body: t('boss.delConfirm', { c: iv.company, r: roundLabel(iv.round) }),
+        ok: t('task.del'), cancel: t('dlg.cancel'), danger: true
+      }).then((ok) => { if (ok) { state.interviews = state.interviews.filter((x) => x.id !== id); commit(); } });
     } else if (act === 'tab') {
       document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.view').forEach((v) => v.hidden = v.id !== btn.dataset.view);
@@ -645,10 +651,12 @@
     try {
       const s = JSON.parse(await f.text());
       if (!Array.isArray(s.tasks) || !Array.isArray(s.interviews)) throw new Error(t('import.bad'));
-      if (confirm(t('import.confirm', { t: s.tasks.length, b: s.interviews.length }))) {
-        state = ensureArmory(s); lastLevel = null; commit(); closeSettings();
-      }
-    } catch (err) { alert(t('import.fail') + err.message); }
+      const ok = await Dialog.confirm({
+        title: t('import.title'), body: t('import.confirm', { t: s.tasks.length, b: s.interviews.length }),
+        ok: t('import.ok'), cancel: t('dlg.cancel'), danger: true
+      });
+      if (ok) { state = ensureArmory(s); lastLevel = null; commit(); closeSettings(); }
+    } catch (err) { Dialog.alert({ title: t('import.failTitle'), body: err.message, ok: t('dlg.ok') }); }
   });
 
   // Boss 表单

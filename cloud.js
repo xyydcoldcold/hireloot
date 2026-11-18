@@ -167,7 +167,10 @@
     clearTimeout(pushTimer);
     const m = readMeta();
     if (m.dirty && navigator.onLine) await push();
-    if (readMeta().dirty && !confirm(t('cloud.logoutUnsynced'))) return;
+    if (readMeta().dirty && !(await window.HirelootDialog.confirm({
+      title: t('cloud.logoutTitle'), body: t('cloud.logoutUnsynced'),
+      ok: t('cloud.logout'), cancel: t('dlg.cancel'), danger: true
+    }))) return;
     user = null;
     try { await sb.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
     // 退出后清掉这台电脑上的存档缓存（数据还在云端）
@@ -305,7 +308,7 @@
         if (error) throw error;
         mode = 'login';
         closeModal(true);
-        alert(t('cloud.recover.done'));
+        window.HirelootDialog.alert({ title: t('cloud.recover.done'), ok: t('dlg.ok') });
       }
     } catch (err) {
       console.warn('[Hireloot cloud]', err);
