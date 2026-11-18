@@ -250,6 +250,7 @@
     document.querySelectorAll('.picker.open').forEach((p) => {
       if (p === except) return;
       p.classList.remove('open');
+      const row = p.closest('.task'); if (row) row.classList.remove('menu-open');
       p.querySelector('.picker-menu').hidden = true;
       p.querySelector('.picker-btn').setAttribute('aria-expanded', 'false');
     });
@@ -259,6 +260,8 @@
     const menu = p.querySelector('.picker-menu');
     const open = menu.hidden;
     p.classList.toggle('open', open);
+    // 给所在的任务行打标记，让 CSS 把这一行抬到其它任务上面（不依赖 :has，老浏览器也行）
+    const row = p.closest('.task'); if (row) row.classList.toggle('menu-open', open);
     menu.hidden = !open;
     p.querySelector('.picker-btn').setAttribute('aria-expanded', String(open));
     if (open) {
