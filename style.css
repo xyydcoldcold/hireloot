@@ -830,3 +830,14 @@ button.linkish:active { transform: none; box-shadow: none; }
   .welcome-toast.show { animation: toast-fade 3.2s forwards; transform: translate(-50%, 0); }
   @keyframes toast-fade { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
 }
+
+/* ============ 确认 / 提示弹窗（替代浏览器自带的 confirm / alert） ============ */
+.dlg-modal { z-index: 400; }
+.dlg-win { width: min(400px, 100%); }
+.dlg-body { margin: 0 0 10px; font-size: var(--m); line-height: 1.5; overflow-wrap: anywhere; }
+.dlg-note { margin: 0 0 6px; font-size: var(--s); line-height: 1.6; color: #ffb3b3; }
+.dlg-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.dlg-btns button { min-width: 96px; padding: 8px 16px; }
+button.danger { background: #b8324a; }
+button.danger:hover { background: #d03c56; filter: none; }
+@media (max-width: 420px) { .dlg-btns button { flex: 1; } }
