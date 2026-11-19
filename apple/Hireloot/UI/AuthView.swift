@@ -189,17 +189,23 @@ struct WelcomeView: View {
     }
 }
 
+/// `.welcome-toast`: gold-ringed window at the top; appears and leaves without easing.
 struct WelcomeBackToast: View {
     let title: String
     let sub: String
     var body: some View {
-        VStack(spacing: 4) {
-            Text(title).pixelText(Theme.m, Theme.gold)
-            Text(sub).pixelText(Theme.s, Theme.muted, shadow: false)
+        VStack(spacing: 0) {
+            Text(title).font(Theme.font(Theme.l)).foregroundStyle(Theme.gold)
+                .shadow(color: Theme.edge, radius: 0, x: 2, y: 2)
+                .multilineTextAlignment(.center)
+            Text(sub).font(Theme.font(Theme.s)).foregroundStyle(Theme.muted).padding(.top, 8)
         }
-        .padding(.horizontal, 22).padding(.vertical, 12)
+        .padding(.horizontal, 26).padding(.top, 14).padding(.bottom, 16)
+        .frame(minWidth: 252)
         .background(Theme.win)
-        .overlay(Rectangle().inset(by: 3).strokeBorder(Theme.frame, lineWidth: 2))
-        .overlay(Rectangle().strokeBorder(Theme.edge, lineWidth: 3))
+        .overlay(Rings(rings: [(Theme.gold, 3), (Theme.edge, 3)]))
+        .padding(4).background(Theme.edge)
+        .background(Rectangle().fill(Color.black.opacity(0.5)).offset(x: 6, y: 6))
+        .padding(.horizontal, 16)
     }
 }

@@ -191,10 +191,10 @@ struct RootView: View {
         if let t = backToast {
             VStack {
                 WelcomeBackToast(title: t, sub: "Lv.\(store.stats.lv) · \(store.l.titleName(store.stats.lv))")
-                    .padding(.top, 60)
+                    .padding(.top, 18)
                 Spacer()
             }
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .transaction { $0.animation = nil }
             .allowsHitTesting(false)
         }
         if let w = ui.viewing { CardViewer(weapon: w) { ui.viewing = nil } }

@@ -43,10 +43,8 @@ struct LogView: View {
                 let open = i == 0 ? !collapsed.contains(d) : expanded.contains(d)
                 VStack(alignment: .leading, spacing: 10) {
                     Button {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            if i == 0 { if collapsed.contains(d) { collapsed.remove(d) } else { collapsed.insert(d) } }
-                            else if expanded.contains(d) { expanded.remove(d) } else { expanded.insert(d) }
-                        }
+                        if i == 0 { if collapsed.contains(d) { collapsed.remove(d) } else { collapsed.insert(d) } }
+                        else if expanded.contains(d) { expanded.remove(d) } else { expanded.insert(d) }
                     } label: {
                         HStack(spacing: 8) {
                             Text(open ? "▼" : "▶").font(Theme.font(Theme.s)).foregroundStyle(Theme.gold)
