@@ -737,6 +737,8 @@
   }
   settings.addEventListener('click', (e) => { if (e.target === settings) closeSettings(); });
   function renderSettings() {
+    const pl = $('#privacy-link');
+    if (pl) pl.href = 'privacy.html?lang=' + lang;
     settings.querySelectorAll('.lang-btn').forEach((b) => {
       const on = b.dataset.lang === lang;
       b.classList.toggle('active', on);

@@ -62,25 +62,9 @@ struct L10n {
     /// The few texts only the native app needs.
     static let native: [String: [String: String]] = [
         "zh": [
-            "native.deleteAccount": "删除账号",
-            "native.deleteTitle": "删除账号？",
-            "native.deleteBody": "账号 {email} 和它的云存档会被永久删除，所有设备上都无法恢复。",
-            "native.deleteOk": "永久删除",
-            "native.deleteFail": "删除失败，请检查网络后再试。",
-            "native.privacy": "隐私政策",
-            "native.syncNow": "立即同步",
-            "native.emptyName": "无名勇者",
             "native.recoverWeb": "重设密码的链接会在网页版 hireloot.com 打开，设置好新密码后回到这里登录。"
         ],
         "en": [
-            "native.deleteAccount": "Delete account",
-            "native.deleteTitle": "Delete account?",
-            "native.deleteBody": "{email} and its cloud save will be deleted for good, on every device.",
-            "native.deleteOk": "Delete forever",
-            "native.deleteFail": "Couldn't delete the account. Check your connection and try again.",
-            "native.privacy": "Privacy Policy",
-            "native.syncNow": "Sync now",
-            "native.emptyName": "Nameless Hero",
             "native.recoverWeb": "The reset link opens the web version at hireloot.com. Set your new password there, then sign in here."
         ]
     ]
