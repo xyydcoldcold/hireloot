@@ -16,7 +16,7 @@ struct AuthView: View {
         let l = store.l
         ZStack {
             Color.black.opacity(0.65).ignoresSafeArea()
-            ScrollView {
+            PixelScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         PanelTitle(text: mode == .forgot ? l.t("cloud.forgot.title") : l.t("cloud.title"))

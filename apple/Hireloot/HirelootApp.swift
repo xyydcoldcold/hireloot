@@ -126,7 +126,7 @@ struct RootView: View {
             }
             .padding(.horizontal, 24).padding(.top, 20).padding(.bottom, 18)
             .frame(maxWidth: 1200)
-            ScrollView {
+            PixelScrollView {
                 HStack(alignment: .top, spacing: 24) {
                     HeroPanel().frame(width: 320)
                     content.frame(maxWidth: .infinity)
@@ -142,7 +142,7 @@ struct RootView: View {
     private var compactLayout: some View {
         VStack(spacing: 0) {
             header.padding(.horizontal, 16).padding(.top, 8).padding(.bottom, 10)
-            ScrollView {
+            PixelScrollView {
                 VStack(spacing: 18) {
                     if ui.tab == .today { HeroPanel() } else { HeroStrip() }
                     content
