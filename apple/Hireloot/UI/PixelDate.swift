@@ -17,6 +17,7 @@ struct PixelDateField: View {
                 Text(Self.label(date, lang)).lineLimit(1).fixedSize()
                 Text("▼").font(Theme.font(Theme.s)).foregroundStyle(Theme.gold).padding(.leading, 12)
             }
+            .fixedSize()
             .font(Theme.font(Theme.m))
             .foregroundStyle(Theme.ink)
             .padding(.horizontal, 12).padding(.vertical, 8)
@@ -81,7 +82,7 @@ struct PixelCalendar: View {
             HStack {
                 arrow("◀") { shift(-1) }
                 Spacer(minLength: 0)
-                Text(lang == "en" ? "\(Self.monthName(ym.month ?? 1)) \(ym.year ?? 0)" : "\(ym.year ?? 0)年\(ym.month ?? 1)月")
+                Text(verbatim: lang == "en" ? "\(Self.monthName(ym.month ?? 1)) \(String(ym.year ?? 0))" : "\(String(ym.year ?? 0))年\(String(ym.month ?? 1))月")
                     .font(Theme.font(Theme.m)).foregroundStyle(Theme.gold)
                     .shadow(color: Theme.edge, radius: 0, x: 2, y: 2)
                 Spacer(minLength: 0)
@@ -102,7 +103,7 @@ struct PixelCalendar: View {
                                 let isSel = sel.year == ym.year && sel.month == ym.month && sel.day == d
                                 let isToday = today.year == ym.year && today.month == ym.month && today.day == d
                                 Button { choose(d) } label: {
-                                    Text("\(d)").font(Theme.font(Theme.m))
+                                    Text(verbatim: String(d)).font(Theme.font(Theme.m))
                                         .foregroundStyle(isSel ? Theme.edge : Theme.ink)
                                         .frame(width: cell, height: 30)
                                         .background(isSel ? Theme.gold : hovered == d ? Theme.rowHi : Color.clear)
