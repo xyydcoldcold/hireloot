@@ -54,13 +54,17 @@ struct RootView: View {
             let wide = geo.size.width >= 820
             ZStack {
                 PixelBackground()
-                if wide { wideLayout } else { compactLayout }
+                Group { if wide { wideLayout } else { compactLayout } }
+                    .pixelMenuHost()
                 overlays
             }
         }
         .onAppear {
             cloud.start()
             if UserDefaults.standard.bool(forKey: "HLOpenPacks") { store.packStageOpen = true }
+            if UserDefaults.standard.bool(forKey: "HLView"), let id = store.state.armory.equipped {
+                ui.viewing = Weapons.all.first { $0.id == id }
+            }
         }
         .onChange(of: phase) { p in
             if p == .active { store.refreshDay(); cloud.pullIfStale() }

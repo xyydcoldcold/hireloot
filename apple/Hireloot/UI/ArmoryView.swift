@@ -3,6 +3,12 @@ import SwiftUI
 struct ArmoryView: View {
     @EnvironmentObject var store: GameStore
     @EnvironmentObject var ui: UIState
+    // `.card-grid`: minmax(128px, 1fr) gap 16; phones minmax(104px, 1fr) gap 10
+    #if os(iOS)
+    static let cardMin: CGFloat = 104, gap: CGFloat = 10
+    #else
+    static let cardMin: CGFloat = 128, gap: CGFloat = 16
+    #endif
 
     var body: some View {
         let l = store.l
@@ -47,19 +53,38 @@ struct ArmoryView: View {
                         Spacer()
                         Pill(text: "\(got) / \(list.count)")
                     }
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 132, maximum: 150), spacing: 12)], spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.cardMin), spacing: Self.gap)], spacing: Self.gap) {
                         ForEach(list) { w in
                             let n = a.owned[w.id] ?? 0
-                            Button { ui.viewing = w } label: {
-                                WeaponCard(weapon: w, count: n, locked: n == 0, mini: true, equipped: a.equipped == w.id, lang: store.lang)
+                            CardSlot { ui.viewing = w } label: {
+                                TiltCard(weapon: w, count: n, locked: n == 0, mini: true, equipped: a.equipped == w.id, lang: store.lang)
                             }
-                            .buttonStyle(.plain)
                             .accessibilityLabel(n > 0 ? w.name(store.lang) : l.t("armory.locked"))
                         }
                     }
                 }
                 .pixelWindow()
             }
+        }
+    }
+}
+
+/// `.card-slot`: lifts 4px on hover, 2px while pressed (no easing, like the web).
+struct CardSlot<Label: View>: View {
+    let action: () -> Void
+    @ViewBuilder let label: () -> Label
+    @State private var hover = false
+    var body: some View {
+        Button(action: action, label: label)
+            .buttonStyle(Lift(hover: hover))
+            .onHover { hover = $0 }
+    }
+    private struct Lift: ButtonStyle {
+        let hover: Bool
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .offset(y: configuration.isPressed ? -2 : hover ? -4 : 0)
+                .contentShape(Rectangle())
         }
     }
 }
@@ -173,7 +198,7 @@ struct PackStage: View {
             }
             if let p = s.pull, s.state == .busy || s.state == .open {
                 if s.charging { Rectangle().fill(rc.opacity(0.35)).blur(radius: 30).frame(width: 200, height: 300) }
-                WeaponCard(weapon: p.weapon, count: p.count, faceUp: s.faceUp, lang: store.lang)
+                WeaponCard(weapon: p.weapon, count: p.count, faceUp: s.faceUp, width: 220, glow: true, lang: store.lang)
                     .scaleEffect(x: s.squash, y: 1)
                     .modifier(Shake(amount: s.charging ? (Weapons.isHigh(p.weapon.rarity) ? 4 : 2) : 0))
                     .transition(.move(edge: .bottom).combined(with: .opacity))

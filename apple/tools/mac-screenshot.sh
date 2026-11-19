@@ -15,3 +15,8 @@ PID=$!
 sleep 8
 screencapture -x "$OUT/mac-en-armory.png"
 kill $PID || true
+"$APP/Contents/MacOS/Hireloot" -HLDemo YES -HLLang zh -HLTab today -HLPicker YES &
+PID=$!
+sleep 8
+screencapture -x "$OUT/mac-zh-picker.png"
+kill $PID || true
