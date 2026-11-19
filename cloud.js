@@ -371,11 +371,10 @@
     H = api;
     if (!enabled) return;
     // 设置面板里插一行“账号”
-    const dataRow = $('#settings [data-act="export"]').closest('.set-row');
     const row = document.createElement('div');
     row.className = 'set-row';
     row.id = 'account-row';
-    dataRow.parentNode.insertBefore(row, dataRow);
+    $('#settings .modal-win').appendChild(row);
     // 登录弹窗
     const m = document.createElement('div');
     m.id = 'auth';
