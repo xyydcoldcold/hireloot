@@ -161,12 +161,13 @@ struct ExpBar: View {
                     .frame(width: w)
                     Spacer(minLength: 0)
                 }
-                .animation(.easeOut(duration: 0.4), value: fraction)
             }
             .padding(3)
             .background(Theme.edge)
         }
         .frame(height: 20)
+        // Pixel style: the bar jumps straight to the new value (no smooth fill), even inside withAnimation.
+        .transaction { $0.animation = nil }
     }
 }
 
