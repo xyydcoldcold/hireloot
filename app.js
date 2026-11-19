@@ -677,15 +677,6 @@
       document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.view').forEach((v) => v.hidden = v.id !== btn.dataset.view);
       try { localStorage.setItem('hireloot.tab', btn.dataset.view); } catch (err) { /* ignore */ }
-    } else if (act === 'export') {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${t('export.name')}-${ymd()}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    } else if (act === 'import') {
-      $('#import-file').click();
     } else if (act === 'settings') {
       openSettings();
     } else if (act === 'settings-close') {
@@ -708,21 +699,6 @@
       const n = e.key === 'ArrowDown' ? Math.min(opts.length - 1, i + 1) : Math.max(0, i - 1);
       opts[n].focus();
     } else if (e.key === 'Tab') closePickers();
-  });
-
-  $('#import-file').addEventListener('change', async (e) => {
-    const f = e.target.files[0];
-    e.target.value = '';
-    if (!f) return;
-    try {
-      const s = JSON.parse(await f.text());
-      if (!Array.isArray(s.tasks) || !Array.isArray(s.interviews)) throw new Error(t('import.bad'));
-      const ok = await Dialog.confirm({
-        title: t('import.title'), body: t('import.confirm', { t: s.tasks.length, b: s.interviews.length }),
-        ok: t('import.ok'), cancel: t('dlg.cancel'), danger: true
-      });
-      if (ok) { state = ensureArmory(s); lastLevel = null; commit(); closeSettings(); }
-    } catch (err) { Dialog.alert({ title: t('import.failTitle'), body: err.message, ok: t('dlg.ok') }); }
   });
 
   // Boss 表单
