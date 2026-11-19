@@ -26,7 +26,7 @@ struct SettingsView: View {
                                  value: Binding(get: { store.sfxOn ? "on" : "off" }, set: { store.sfxOn = $0 == "on"; if store.sfxOn { Sfx.shared.click() } }))
                 }
                 HStack {
-                    Link(destination: URL(string: "https://hireloot.com/privacy.html")!) {
+                    Link(destination: URL(string: "https://hireloot.com/privacy.html?lang=\(store.lang)")!) {
                         Text(l.t("native.privacy")).font(Theme.font(Theme.s)).foregroundStyle(Theme.muted).underline()
                     }
                     Spacer()

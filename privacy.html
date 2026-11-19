@@ -15,11 +15,22 @@
     .policy p, .policy li { font-size: var(--m); line-height: 1.6; }
     .policy small { color: var(--muted); font-size: var(--s); }
     .policy a { color: var(--gold); }
+    .policy-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .lang-switch { display: flex; gap: 8px; }
+    .lang-switch button { font-size: var(--m); }
+    .lang-switch button[aria-pressed=true] { background: var(--gold); color: var(--edge); text-shadow: none; }
+    .policy section[hidden] { display: none; }
   </style>
 </head>
 <body>
   <main class="policy">
-    <h1><a href="./" style="color: inherit; text-decoration: none">HIRELOOT</a></h1>
+    <div class="policy-head">
+      <h1><a href="./" style="color: inherit; text-decoration: none">HIRELOOT</a></h1>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh-CN">中文</button>
+        <button type="button" data-lang="en">English</button>
+      </div>
+    </div>
 
     <section class="px" lang="zh-CN">
       <h2>隐私政策</h2>
@@ -75,5 +86,34 @@
       <p>Questions about privacy? Open an issue on <a href="https://github.com/xyydcoldcold/hireloot/issues">GitHub</a>.</p>
     </section>
   </main>
+  <script>
+    // 语言：网址里的 ?lang= 优先，其次是网页版存的语言，最后看浏览器语言
+    (function () {
+      var KEY = 'hireloot.lang';
+      var q = new URLSearchParams(location.search).get('lang');
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      var lang = q ? (q.indexOf('en') === 0 ? 'en' : 'zh') : saved || ((navigator.language || '').indexOf('zh') === 0 ? 'zh' : 'en');
+      function show(l) {
+        lang = l;
+        document.querySelectorAll('section[lang]').forEach(function (sec) {
+          sec.hidden = (sec.lang === 'en') !== (l === 'en');
+        });
+        document.querySelectorAll('.lang-switch button').forEach(function (b) {
+          b.setAttribute('aria-pressed', String((b.dataset.lang === 'en') === (l === 'en')));
+        });
+        document.documentElement.lang = l === 'en' ? 'en' : 'zh-CN';
+        document.title = l === 'en' ? 'Hireloot · Privacy Policy' : 'Hireloot · 隐私政策';
+      }
+      document.querySelectorAll('.lang-switch button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var l = b.dataset.lang === 'en' ? 'en' : 'zh';
+          try { localStorage.setItem(KEY, l); } catch (e) {}
+          show(l);
+        });
+      });
+      show(lang === 'en' ? 'en' : 'zh');
+    })();
+  </script>
 </body>
 </html>
