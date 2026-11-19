@@ -89,7 +89,8 @@ struct SettingsView: View {
 
     private func logoutButton(_ l: L10n) -> some View {
         HStack(spacing: 8) {
-            Button(l.t("cloud.syncNow")) { cloud.pullIfStale(minInterval: 0) }.buttonStyle(.pixel(size: Theme.s, compact: true))
+            Button(l.t("cloud.syncNow")) { cloud.pullIfStale(minInterval: 0) }
+                .buttonStyle(.pixel(size: Theme.s, compact: true)).fixedSize()
             Button(l.t("cloud.logout")) {
                 Task {
                     if !(await cloud.signOut(force: false)) {
@@ -98,7 +99,7 @@ struct SettingsView: View {
                     } else { close() }
                 }
             }
-            .buttonStyle(.pixel(size: Theme.s, compact: true))
+            .buttonStyle(.pixel(size: Theme.s, compact: true)).fixedSize()
         }
     }
 }

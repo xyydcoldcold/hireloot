@@ -39,6 +39,11 @@ final class CloudSync: ObservableObject {
     init(store: GameStore) {
         self.store = store
         session = disabled ? nil : Keychain.load()
+        // Screenshots of the signed-in Settings: a fake account that never talks to the server.
+        if disabled, UserDefaults.standard.bool(forKey: "HLDemoAccount") {
+            session = AuthSession(accessToken: "", refreshToken: "", expiresAt: 0, userId: "demo", email: "hero@hireloot.com")
+            status = .synced
+        }
         store.onSave = { [weak self] in self?.onSave() }
     }
 
@@ -146,7 +151,7 @@ final class CloudSync: ObservableObject {
     }
 
     func push() async {
-        guard session != nil, !pushing else { return }
+        guard !disabled, session != nil, !pushing else { return }
         let m = meta
         guard m.uid == session?.userId, m.dirty else { return }
         pushing = true
@@ -172,7 +177,7 @@ final class CloudSync: ObservableObject {
 
     /// Looks for changes from other devices: on launch, when the app becomes active, and every 30 s.
     func pullIfStale(minInterval: TimeInterval = 5) {
-        guard session != nil, !pushing, conflict == nil, Date().timeIntervalSince(lastPull) > minInterval else { return }
+        guard !disabled, session != nil, !pushing, conflict == nil, Date().timeIntervalSince(lastPull) > minInterval else { return }
         if meta.dirty { Task { await push() }; return }
         Task { await pull() }
     }
@@ -182,7 +187,7 @@ final class CloudSync: ObservableObject {
         pulling = true
         defer { pulling = false; maybeGreet() }
         lastPull = Date()
-        guard session != nil else { return }
+        guard !disabled, session != nil else { return }
         status = .syncing
         do {
             let s = try await validSession()

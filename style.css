@@ -51,6 +51,18 @@ button, input, select { font: inherit; color: inherit; }
 ::selection { background: var(--gold); color: var(--edge); }
 svg { image-rendering: pixelated; }
 
+/* 像素滚动条（App 里的 PixelScrollbar 同款）：深色凹槽 + 米色滑块 + 黑描边 */
+@supports not selector(::-webkit-scrollbar) { html { scrollbar-color: var(--frame) var(--deep); } }
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: var(--deep); border: 3px solid var(--edge); }
+::-webkit-scrollbar-thumb {
+  background: var(--frame); border: 3px solid var(--edge);
+  box-shadow: inset 3px 0 0 rgba(255,255,255,.45), inset -3px 0 0 rgba(0,0,0,.25);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+::-webkit-scrollbar-corner { background: var(--edge); }
+::-webkit-scrollbar-button { display: none; }
+
 /* ============ 像素窗口 ============ */
 .px {
   position: relative;
