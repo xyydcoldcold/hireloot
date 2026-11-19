@@ -27,12 +27,12 @@ struct SettingsView: View {
                 }
                 HStack {
                     Link(destination: URL(string: "https://hireloot.com/privacy.html?lang=\(store.lang)")!) {
-                        Text(l.t("native.privacy")).font(Theme.font(Theme.s)).foregroundStyle(Theme.muted).underline()
+                        Text(l.t("settings.privacy")).font(Theme.font(Theme.s)).foregroundStyle(Theme.muted).underline()
                     }
                     Spacer()
                     if let s = cloud.session {
-                        Button(l.t("native.deleteAccount")) { confirmDelete(l, email: s.email) }
-                            .buttonStyle(.pixel(Color(hex: "#a8343f"), size: Theme.s, compact: true))
+                        Button(l.t("cloud.delete")) { confirmDelete(l, email: s.email) }
+                            .buttonStyle(.pixel(Color(hex: "#b8324a"), size: Theme.s, compact: true))
                     }
                 }
             }
@@ -43,11 +43,11 @@ struct SettingsView: View {
     }
 
     private func confirmDelete(_ l: L10n, email: String) {
-        ui.dialog = DialogRequest(title: l.t("native.deleteTitle"), body: l.t("native.deleteBody", ["email": email]),
-                                  ok: l.t("native.deleteOk"), cancel: l.t("dlg.cancel"), danger: true) {
+        ui.dialog = DialogRequest(title: l.t("cloud.deleteTitle"), body: l.t("cloud.deleteBody", ["email": email]),
+                                  ok: l.t("cloud.deleteOk"), cancel: l.t("dlg.cancel"), danger: true) {
             Task {
                 do { try await cloud.deleteAccount(); close() }
-                catch { ui.dialog = DialogRequest(title: l.t("native.deleteTitle"), body: l.t("native.deleteFail"), ok: l.t("dlg.ok")) }
+                catch { ui.dialog = DialogRequest(title: l.t("cloud.deleteTitle"), body: l.t("cloud.deleteFail"), ok: l.t("dlg.ok")) }
             }
         }
     }
@@ -89,7 +89,7 @@ struct SettingsView: View {
 
     private func logoutButton(_ l: L10n) -> some View {
         HStack(spacing: 8) {
-            Button(l.t("native.syncNow")) { cloud.pullIfStale(minInterval: 0) }.buttonStyle(.pixel(size: Theme.s, compact: true))
+            Button(l.t("cloud.syncNow")) { cloud.pullIfStale(minInterval: 0) }.buttonStyle(.pixel(size: Theme.s, compact: true))
             Button(l.t("cloud.logout")) {
                 Task {
                     if !(await cloud.signOut(force: false)) {

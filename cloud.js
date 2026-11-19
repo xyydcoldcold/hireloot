@@ -181,6 +181,31 @@
     openModal('login');
   }
 
+  // 删除账号：云端账号和存档一起永久删除（supabase/schema.sql 里的 delete_account），本机缓存也清掉
+  async function deleteAccount() {
+    if (!user) return;
+    const ok = await window.HirelootDialog.confirm({
+      title: t('cloud.deleteTitle'), body: t('cloud.deleteBody', { email: user.email || '' }),
+      ok: t('cloud.deleteOk'), cancel: t('dlg.cancel'), danger: true
+    });
+    if (!ok || !user) return;
+    clearTimeout(pushTimer);
+    const res = await sb.rpc('delete_account');
+    if (res.error) {
+      console.warn('[Hireloot cloud] delete failed', res.error);
+      await window.HirelootDialog.alert({ title: t('cloud.deleteTitle'), body: t('cloud.deleteFail'), ok: t('dlg.ok') });
+      return;
+    }
+    user = null;
+    try { await sb.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
+    ls.del(META_KEY);
+    ls.del(GUEST_KEY);
+    H.replaceState(H.emptyState());
+    setStatus('idle');
+    $('#settings').hidden = true;
+    openModal('login');
+  }
+
   // ============ 界面 ============
   const errText = (err) => {
     const msg = (err && (err.message || err.error_description)) || String(err);
@@ -347,13 +372,15 @@
     const row = $('#account-row');
     if (!row) return;
     const esc = H.esc;
+    const del = $('#delete-account');
+    if (del) del.hidden = !user;
     if (!user) {
       row.innerHTML = `<div class="set-label">${esc(t('cloud.account'))}<small>${esc(t('cloud.guestNow'))}</small></div>
         <div class="seg"><button data-act="auth-open">${esc(t('cloud.loginSignup'))}</button></div>`;
     } else {
       row.innerHTML = `<div class="set-label">${esc(t('cloud.account'))}<small class="acct-email">${esc(user.email || '')}</small>
         <small class="sync sync-${status}">${H.icon('cloud', 2)}${esc(t('cloud.status.' + status))}</small></div>
-        <div class="seg"><button data-act="auth-logout">${esc(t('cloud.logout'))}</button></div>`;
+        <div class="seg"><button data-act="auth-sync">${esc(t('cloud.syncNow'))}</button><button data-act="auth-logout">${esc(t('cloud.logout'))}</button></div>`;
     }
   }
 
@@ -371,11 +398,7 @@
     H = api;
     if (!enabled) return;
     // 设置面板里插一行“账号”
-    const dataRow = $('#settings [data-act="export"]').closest('.set-row');
-    const row = document.createElement('div');
-    row.className = 'set-row';
-    row.id = 'account-row';
-    dataRow.parentNode.insertBefore(row, dataRow);
+    $('#account-row').hidden = false;
     // 登录弹窗
     const m = document.createElement('div');
     m.id = 'auth';
@@ -398,6 +421,8 @@
       else if (act === 'auth-mode') { const f = modal().querySelector('input[name=email]'); if (f) lastEmail = f.value.trim(); openModal(btn.dataset.mode); }
       else if (act === 'auth-guest') { ls.set(GUEST_KEY, '1'); closeModal(); }
       else if (act === 'auth-logout') logout();
+      else if (act === 'auth-sync') { if (user) { if (readMeta().dirty) push(); else pull(); } }
+      else if (act === 'auth-delete') deleteAccount();
       else if (act === 'conflict') resolveConflict(btn.dataset.which);
     });
 
