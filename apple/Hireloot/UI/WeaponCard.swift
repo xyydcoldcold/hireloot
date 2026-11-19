@@ -344,16 +344,17 @@ struct Holo: View {
     private func bands(_ ctx: GraphicsContext, angle: Double, box: CGRect, period: Double, stops: [(Double, Double, Color)]) {
         var g = ctx
         let a = angle * .pi / 180
-        let len = abs(box.width * sin(a)) + abs(box.height * cos(a))
+        let len: CGFloat = abs(box.width * CGFloat(Foundation.sin(a))) + abs(box.height * CGFloat(Foundation.cos(a)))
         g.translateBy(x: box.midX, y: box.midY)
         g.rotate(by: .radians(a - .pi / 2))
         let big = box.width + box.height
         // gradient line runs from -len/2 to +len/2; repeat the pattern over the whole box
-        let p = period * len
-        var start = -len / 2 - ceil(big / p) * p
+        let p = CGFloat(period) * len
+        var start: CGFloat = -len / 2 - (big / p).rounded(.up) * p
         while start < big {
             for (from, to, color) in stops {
-                g.fill(Path(CGRect(x: start + from * len, y: -big, width: (to - from) * len, height: big * 2)), with: .color(color))
+                let f = CGFloat(from), t = CGFloat(to)
+                g.fill(Path(CGRect(x: start + f * len, y: -big, width: (t - f) * len, height: big * 2)), with: .color(color))
             }
             start += p
         }
@@ -377,11 +378,12 @@ struct Holo: View {
         // not repeating: one pass of the pattern
         var g = ctx
         let a = 110 * Double.pi / 180
-        let len = abs(box.width * sin(a)) + abs(box.height * cos(a))
+        let len: CGFloat = abs(box.width * CGFloat(Foundation.sin(a))) + abs(box.height * CGFloat(Foundation.cos(a)))
         g.translateBy(x: box.midX, y: box.midY)
         g.rotate(by: .radians(a - .pi / 2))
         let big = box.width + box.height
-        for (from, to, o) in [(0.40, 0.46, 0.55), (0.52, 0.55, 0.35)] {
+        let bandsR: [(CGFloat, CGFloat, Double)] = [(0.40, 0.46, 0.55), (0.52, 0.55, 0.35)]
+        for (from, to, o) in bandsR {
             g.fill(Path(CGRect(x: -len / 2 + from * len, y: -big, width: (to - from) * len, height: big * 2)), with: .color(w.opacity(o)))
         }
     }
