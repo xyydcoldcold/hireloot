@@ -112,6 +112,21 @@ final class CloudSync: ObservableObject {
         return true
     }
 
+    /// Permanently deletes the account and its cloud save, then clears this device. Throws if the server refuses.
+    func deleteAccount() async throws {
+        guard var s = session else { return }
+        pushTask?.cancel()
+        if s.expiresAt - Date().timeIntervalSince1970 < 60, let fresh = try? await api.refresh(s) { s = fresh }
+        try await api.deleteAccount(s)
+        session = nil
+        Keychain.clear()
+        UserDefaults.standard.removeObject(forKey: Self.metaKey)
+        UserDefaults.standard.removeObject(forKey: Self.guestKey)
+        store.replaceState(SaveState())
+        status = .idle
+        showAuth = true
+    }
+
     // MARK: Sync
     func onSave() {
         guard let s = session else { return }

@@ -190,12 +190,4 @@ final class GameStore: ObservableObject {
 
     func count(_ w: Weapon) -> Int { state.armory.owned[w.id] ?? 0 }
 
-    // MARK: Import / export
-    func exportData() -> Data { state.jsonData(pretty: true) }
-    func importSave(_ s: SaveState) {
-        state = s
-        lastLevel = Int.max  // no level-up fireworks for an import
-        commit()
-        lastLevel = stats.lv
-    }
 }

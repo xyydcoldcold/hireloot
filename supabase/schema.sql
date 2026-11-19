@@ -35,3 +35,11 @@ create trigger saves_touch before insert or update on public.saves
 -- 防止单个存档无限变大（约 1 MB）
 alter table public.saves drop constraint if exists saves_size;
 alter table public.saves add constraint saves_size check (pg_column_size(data) < 1000000);
+
+-- 删除账号（App Store 要求 App 内能删号）：登录的人只能删自己；saves 行会跟着 on delete cascade 一起删掉
+create or replace function public.delete_account() returns void
+language sql security definer set search_path = '' as $$
+  delete from auth.users where id = auth.uid();
+$$;
+revoke all on function public.delete_account() from public, anon;
+grant execute on function public.delete_account() to authenticated;

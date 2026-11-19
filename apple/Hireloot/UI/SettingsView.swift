@@ -1,21 +1,10 @@
 import SwiftUI
-import UniformTypeIdentifiers
-
-struct SaveDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.json] }
-    var data: Data
-    init(data: Data) { self.data = data }
-    init(configuration: ReadConfiguration) throws { data = configuration.file.regularFileContents ?? Data() }
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: data) }
-}
 
 struct SettingsView: View {
     @EnvironmentObject var store: GameStore
     @EnvironmentObject var cloud: CloudSync
     @EnvironmentObject var ui: UIState
     let close: () -> Void
-    @State private var exporting = false
-    @State private var importing = false
 
     var body: some View {
         let l = store.l
@@ -32,35 +21,33 @@ struct SettingsView: View {
                     PixelSegment(options: [("zh", "中文"), ("en", "English")], value: $store.lang)
                 }
                 account(l)
-                row(l.t("settings.data")) {
-                    HStack(spacing: 8) {
-                        Button(l.t("settings.export")) { exporting = true }.buttonStyle(.pixel(size: Theme.m, compact: true))
-                        Button(l.t("settings.import")) { importing = true }.buttonStyle(.pixel(size: Theme.m, compact: true))
-                    }
-                }
                 row(l.t("settings.sfx")) {
                     PixelSegment(options: [("on", l.t("settings.on")), ("off", l.t("settings.off"))],
                                  value: Binding(get: { store.sfxOn ? "on" : "off" }, set: { store.sfxOn = $0 == "on"; if store.sfxOn { Sfx.shared.click() } }))
+                }
+                HStack {
+                    Link(destination: URL(string: "https://hireloot.com/privacy.html")!) {
+                        Text(l.t("native.privacy")).font(Theme.font(Theme.s)).foregroundStyle(Theme.muted).underline()
+                    }
+                    Spacer()
+                    if let s = cloud.session {
+                        Button(l.t("native.deleteAccount")) { confirmDelete(l, email: s.email) }
+                            .buttonStyle(.pixel(Color(hex: "#a8343f"), size: Theme.s, compact: true))
+                    }
                 }
             }
             .pixelWindow(padding: 24)
             .frame(maxWidth: 520)
             .padding(20)
         }
-        .fileExporter(isPresented: $exporting, document: SaveDocument(data: store.exportData()), contentType: .json,
-                      defaultFilename: "\(l.t("export.name"))-\(Day.today()).json") { _ in }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
-            guard case .success(let url) = result else { return }
-            let scoped = url.startAccessingSecurityScopedResource()
-            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-            guard let data = try? Data(contentsOf: url), let s = SaveState.decodeStrict(data) else {
-                ui.dialog = DialogRequest(title: l.t("import.failTitle"), body: l.t("import.bad"), ok: l.t("dlg.ok"))
-                return
-            }
-            ui.dialog = DialogRequest(title: l.t("import.title"), body: l.t("import.confirm", ["t": s.tasks.count, "b": s.interviews.count]),
-                                      ok: l.t("import.ok"), cancel: l.t("dlg.cancel"), danger: true) {
-                store.importSave(s)
-                close()
+    }
+
+    private func confirmDelete(_ l: L10n, email: String) {
+        ui.dialog = DialogRequest(title: l.t("native.deleteTitle"), body: l.t("native.deleteBody", ["email": email]),
+                                  ok: l.t("native.deleteOk"), cancel: l.t("dlg.cancel"), danger: true) {
+            Task {
+                do { try await cloud.deleteAccount(); close() }
+                catch { ui.dialog = DialogRequest(title: l.t("native.deleteTitle"), body: l.t("native.deleteFail"), ok: l.t("dlg.ok")) }
             }
         }
     }

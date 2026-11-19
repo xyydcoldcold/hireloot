@@ -67,6 +67,11 @@ final class SupabaseClient {
         return try parseSession(json)
     }
 
+    /// Deletes the signed-in user and (by cascade) their save. Needs `delete_account()` from supabase/schema.sql.
+    func deleteAccount(_ s: AuthSession) async throws {
+        _ = try await request("rest/v1/rpc/delete_account", query: [], method: "POST", body: [String: Any](), token: s.accessToken)
+    }
+
     func signOut(_ s: AuthSession) async {
         _ = try? await request("auth/v1/logout", query: [("scope", "local")], method: "POST", body: [:], token: s.accessToken)
     }
