@@ -155,7 +155,8 @@ struct PixelSegment: View {
     @Binding var value: String
     var body: some View {
         HStack(spacing: 6) {
-            ForEach(options, id: \.id) { o in
+            ForEach(options.indices, id: \.self) { i in
+                let o = options[i]
                 Button(o.label) { value = o.id }
                     .buttonStyle(.pixel(o.id == value ? Theme.gold : Theme.button, fg: o.id == value ? Theme.edge : Theme.ink, size: Theme.m, compact: true))
             }

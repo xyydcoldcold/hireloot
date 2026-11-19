@@ -85,10 +85,10 @@ enum JSONScalar: Decodable {
 }
 
 enum I18nValue: Decodable {
-    case text(String), list([String]), none
+    case text(String), list([String]), null
     init(from decoder: Decoder) throws {
         let c = try decoder.singleValueContainer()
-        if c.decodeNil() { self = .none }
+        if c.decodeNil() { self = .null }
         else if let s = try? c.decode(String.self) { self = .text(s) }
         else { self = .list(try c.decode([String].self)) }
     }

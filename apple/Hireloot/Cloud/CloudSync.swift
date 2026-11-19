@@ -140,8 +140,9 @@ final class CloudSync: ObservableObject {
         let data = store.state
         do {
             let s = try await validSession()
-            let newRev = m.rev == 0 ? try await api.insertSave(s, data: data)
-                                    : try await api.updateSave(s, data: data, rev: m.rev)
+            let newRev: Int?
+            if m.rev == 0 { newRev = try await api.insertSave(s, data: data) }
+            else { newRev = try await api.updateSave(s, data: data, rev: m.rev) }
             pushing = false
             guard let rev = newRev else { await pull(); return }  // another device saved first
             guard meta.uid == s.userId else { return }             // signed out meanwhile

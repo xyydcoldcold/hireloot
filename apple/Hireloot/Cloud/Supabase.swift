@@ -131,10 +131,11 @@ final class SupabaseClient {
         do { (data, resp) = try await session.data(for: req) }
         catch { throw SupabaseError(status: -1, code: nil, message: error.localizedDescription) }
         let status = (resp as? HTTPURLResponse)?.statusCode ?? 0
-        let json = data.isEmpty ? [:] as [String: Any] : ((try? JSONSerialization.jsonObject(with: data)) ?? [:])
+        var json: Any = [String: Any]()
+        if !data.isEmpty, let parsed = try? JSONSerialization.jsonObject(with: data) { json = parsed }
         guard (200..<300).contains(status) else {
             let o = json as? [String: Any] ?? [:]
-            let code = (o["error_code"] as? String) ?? (o["code"] as? String) ?? (o["code"] as? Int).map(String.init) ?? (o["error"] as? String)
+            let code = (o["error_code"] as? String) ?? (o["code"] as? String) ?? (o["code"] as? Int).map { String($0) } ?? (o["error"] as? String)
             let msg = (o["msg"] as? String) ?? (o["message"] as? String) ?? (o["error_description"] as? String) ?? "HTTP \(status)"
             throw SupabaseError(status: status, code: code, message: msg)
         }

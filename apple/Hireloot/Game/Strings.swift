@@ -17,8 +17,8 @@ struct L10n {
         return s
     }
     func list(_ key: String) -> [String] {
-        if case .list(let l) = L10n.table[lang]?[key] ?? .none { return l }
-        if case .list(let l) = L10n.table["zh"]?[key] ?? .none { return l }
+        if case .list(let l)? = L10n.table[lang]?[key] { return l }
+        if case .list(let l)? = L10n.table["zh"]?[key] { return l }
         return []
     }
 

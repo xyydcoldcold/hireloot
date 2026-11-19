@@ -26,9 +26,9 @@ struct SpriteGrid {
             }
             pal["§"] = outline
         }
-        var cells: [(Int, Int, Color)] = []
+        var cells: [(x: Int, y: Int, color: Color)] = []
         for (y, row) in rows.enumerated() {
-            for (x, ch) in row.enumerated() { if let c = pal[ch] { cells.append((x, y, c)) } }
+            for (x, ch) in row.enumerated() { if let c = pal[ch] { cells.append((x: x, y: y, color: c)) } }
         }
         self.cells = cells
         self.width = rows.map(\.count).max() ?? 0

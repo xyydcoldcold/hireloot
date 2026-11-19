@@ -22,6 +22,11 @@ struct AuthView: View {
                         PanelTitle(text: mode == .forgot ? l.t("cloud.forgot.title") : l.t("cloud.title"))
                         Spacer()
                         PixelSegment(options: [("zh", "中文"), ("en", "EN")], value: $store.lang)
+                        Button { cloud.showAuth = false } label: {
+                            Text("✕").font(Theme.font(Theme.m)).foregroundStyle(Theme.muted).padding(.leading, 6)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(l.t("settings.close"))
                     }
                     if mode != .forgot {
                         PixelSegment(options: [("login", l.t("cloud.login")), ("signup", l.t("cloud.signup"))],
