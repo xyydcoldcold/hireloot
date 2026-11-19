@@ -14,12 +14,14 @@ struct HeroPanel: View {
                 .padding(.bottom, 12)
             HStack(alignment: .center, spacing: 16) {
                 HeroPortrait(stats: st)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("LEVEL").pixelText(Theme.s, Theme.muted, shadow: false)
+                // `.lv-box`: fills the space beside the portrait, centered
+                VStack(alignment: .center, spacing: 6) {
+                    Text("LEVEL").font(Theme.font(Theme.s)).tracking(3).foregroundStyle(Theme.muted)
+                    // shadows hang to the right without taking space, like CSS text-shadow
                     LayeredText(text: "\(st.lv)", layers: [(Theme.edge, 5), (Theme.goldDk, 3)])
+                        .padding(.leading, 5)
                 }
-                .layoutPriority(1)
-                Spacer(minLength: 0)
+                .frame(maxWidth: .infinity)
             }
             .padding(.bottom, 14)
             TitleRibbon(text: l.titleName(st.lv))
@@ -63,9 +65,10 @@ struct HeroPanel: View {
                     Text(name.isEmpty ? l.t("hero.noName") : name)
                         .pixelText(Theme.l, name.isEmpty ? Theme.muted : Theme.ink)
                         .lineLimit(1).minimumScaleFactor(0.75)
-                    PixelIcon(name: "pencil")
-                    Spacer(minLength: 0)
+                    PixelIcon(name: "pencil").opacity(0.55)
                 }
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, minHeight: 40)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
