@@ -16,10 +16,7 @@ struct HeroPanel: View {
                 HeroPortrait(stats: st)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("LEVEL").pixelText(Theme.s, Theme.muted, shadow: false)
-                    Text("\(st.lv)").font(Theme.font(Theme.xl)).foregroundStyle(Theme.gold)
-                        .shadow(color: Theme.goldDk, radius: 0, x: 3, y: 3).shadow(color: Theme.edge, radius: 0, x: 5, y: 5)
-                        .fixedSize()
-                        .padding(.trailing, 6)
+                    LayeredText(text: "\(st.lv)", layers: [(Theme.edge, 5), (Theme.goldDk, 3)])
                 }
                 .layoutPriority(1)
                 Spacer(minLength: 0)

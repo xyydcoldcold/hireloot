@@ -132,8 +132,7 @@ struct LevelUpBanner: View {
     @State private var shown = false
     var body: some View {
         VStack(spacing: 6) {
-            Text("LEVEL UP!").font(Theme.font(Theme.xl)).foregroundStyle(Theme.gold)
-                .shadow(color: Theme.goldDk, radius: 0, x: 3, y: 3).shadow(color: Theme.edge, radius: 0, x: 6, y: 6)
+            LayeredText(text: "LEVEL UP!")
             Text("Lv.\(event.lv) · \(l.titleName(event.lv))").pixelText(Theme.m)
             if event.packs > 0 {
                 HStack(spacing: 6) { PixelIcon(name: "pack"); Text(l.t("pack.gain", ["n": event.packs])).pixelText(Theme.m, Theme.gold) }

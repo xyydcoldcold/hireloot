@@ -100,11 +100,7 @@ struct RootView: View {
 
     private var header: some View {
         HStack(spacing: 16) {
-            Text("HIRELOOT")
-                .font(Theme.font(Theme.xl))
-                .foregroundStyle(Theme.gold)
-                .shadow(color: Theme.goldDk, radius: 0, x: 3, y: 3)
-                .shadow(color: Theme.edge, radius: 0, x: 6, y: 6)
+            LayeredText(text: "HIRELOOT")
             Spacer(minLength: 8)
             gear
         }
@@ -119,9 +115,7 @@ struct RootView: View {
     private var wideLayout: some View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
-                Text("HIRELOOT")
-                    .font(Theme.font(Theme.xl)).foregroundStyle(Theme.gold)
-                    .shadow(color: Theme.goldDk, radius: 0, x: 3, y: 3).shadow(color: Theme.edge, radius: 0, x: 6, y: 6)
+                LayeredText(text: "HIRELOOT")
                 Spacer()
                 HStack(spacing: 8) { ForEach(AppTab.allCases) { tabButton($0) } }
                 gear

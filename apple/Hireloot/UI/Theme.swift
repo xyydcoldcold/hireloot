@@ -212,3 +212,24 @@ struct PixelBackground: View {
         .ignoresSafeArea()
     }
 }
+
+/// Text with stacked hard shadows (CSS `text-shadow: 3px 3px a, 6px 6px b`), drawn as separate layers
+/// so the second shadow does not also shadow the first.
+struct LayeredText: View {
+    let text: String
+    var size: CGFloat = Theme.xl
+    var color: Color = Theme.gold
+    var layers: [(Color, CGFloat)] = [(Theme.edge, 6), (Theme.goldDk, 3)]
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(layers.indices, id: \.self) { i in
+                Text(text).font(Theme.font(size)).foregroundStyle(layers[i].0)
+                    .offset(x: layers[i].1, y: layers[i].1)
+            }
+            Text(text).font(Theme.font(size)).foregroundStyle(color)
+        }
+        .fixedSize()
+        .padding(.trailing, layers.map(\.1).max() ?? 0)
+        .padding(.bottom, layers.map(\.1).max() ?? 0)
+    }
+}
