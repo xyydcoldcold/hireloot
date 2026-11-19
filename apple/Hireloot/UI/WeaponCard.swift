@@ -103,14 +103,14 @@ struct WeaponCard: View {
             : [Color(hex: "#c77dff"), Color(hex: "#7fdbff"), Color(hex: "#f3d9ff"), Color(hex: "#c77dff")]
         return ZStack {
             LinearGradient(colors: colors, startPoint: UnitPoint(x: 0 + tilt.x, y: 0 + tilt.y), endPoint: UnitPoint(x: 1 + tilt.x, y: 1 + tilt.y))
-                .opacity(ssr ? 0.32 : 0.24)
-                .blendMode(.colorDodge)
+                .opacity(mini ? (ssr ? 0.16 : 0.12) : (ssr ? 0.26 : 0.2))
+                .blendMode(.screen)
             // scanlines keep it pixel-y
             Canvas { ctx, size in
                 var y: CGFloat = 0
-                while y < size.height { ctx.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 1)), with: .color(.black.opacity(0.18))); y += 3 }
+                while y < size.height { ctx.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 1)), with: .color(.black.opacity(0.1))); y += 3 }
             }
-            RadialGradient(colors: [.white.opacity(0.35), .clear], center: UnitPoint(x: 0.5 + tilt.x * 1.4, y: 0.5 + tilt.y * 1.4),
+            RadialGradient(colors: [.white.opacity(mini ? 0.12 : 0.25), .clear], center: UnitPoint(x: 0.5 + tilt.x * 1.4, y: 0.5 + tilt.y * 1.4),
                            startRadius: 0, endRadius: mini ? 80 : 150)
                 .blendMode(.overlay)
         }

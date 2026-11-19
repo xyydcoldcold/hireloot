@@ -107,12 +107,18 @@ struct PackStage: View {
                     if fromLevelUp { Text(l.t("pack.titleLv")).pixelText(Theme.m, Theme.gold) }
                     Text(l.t("pack.title", ["n": slots.count])).pixelText(Theme.l)
                 }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 18) {
-                        ForEach(slots.indices, id: \.self) { i in slotView(i).frame(width: 236, height: 360) }
+                GeometryReader { geo in
+                    let fits = geo.size.width >= CGFloat(slots.count) * 254 + 30
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 18) {
+                            ForEach(slots.indices, id: \.self) { i in slotView(i).frame(width: 236, height: 360) }
+                        }
+                        .scrollTargetLayout()
+                        .padding(.vertical, 12)
+                        .frame(minWidth: geo.size.width - (fits ? 0 : max(0, geo.size.width - 236)))
                     }
-                    .padding(.horizontal, 24).padding(.vertical, 12)
-                    .frame(minWidth: 0)
+                    .contentMargins(.horizontal, fits ? 0 : max(16, (geo.size.width - 236) / 2), for: .scrollContent)
+                    .scrollTargetBehavior(.viewAligned)
                 }
                 .frame(height: 384)
                 .modifier(Shake(amount: quake ? 8 : 0))
