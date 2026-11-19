@@ -66,15 +66,7 @@ struct BossView: View {
     }
 
     private var dateField: some View {
-        DatePicker("", selection: $date, displayedComponents: .date)
-            .labelsHidden()
-            .environment(\.locale, Locale(identifier: store.lang == "en" ? "en_US" : "zh_CN"))
-            .colorScheme(.dark)
-            .tint(Theme.gold)
-            .padding(.horizontal, 6).padding(.vertical, 4)
-            .background(Theme.deep)
-            .padding(3)
-            .background(Theme.edge)
+        PixelDateField(date: $date, lang: store.lang, startOpen: UserDefaults.standard.bool(forKey: "HLCalendar"))
     }
 
     private func resultButton(_ value: String, _ icon: String, _ label: String) -> some View {

@@ -38,7 +38,7 @@ struct TodayView: View {
             .pixelWindow()
 
             VStack(alignment: .leading, spacing: 10) {
-                Button { withAnimation(.easeOut(duration: 0.15)) { doneOpen.toggle() } } label: {
+                Button { doneOpen.toggle() } label: {
                     HStack(spacing: 8) {
                         Text(doneOpen ? "▼" : "▶").font(Theme.font(Theme.s)).foregroundStyle(Theme.gold)
                         Text("\(l.t("today.doneTitle")) (\(doneToday.count))").pixelText(Theme.m)

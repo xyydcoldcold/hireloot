@@ -102,8 +102,13 @@ struct PixelPicker: View {
         .onHover { hover = $0 }
         .onAppear { if startOpen { open = true } }
         .anchorPreference(key: PixelMenuKey.self, value: .bounds) { a in
-            open ? PixelMenuRequest(id: token, anchor: a, options: options, selected: value, small: tag,
-                                    select: { value = $0; open = false }, close: { open = false }) : nil
+            guard open else { return nil }
+            let rowH: CGFloat = tag ? 26 : 35
+            let h = CGFloat(options.count) * rowH + CGFloat(max(0, options.count - 1)) * 2 + 28
+            let opts = options, sel = value
+            return PixelMenuRequest(id: token, anchor: a, height: h, width: 200, close: { open = false }) { w in
+                AnyView(PixelMenu(options: opts, selected: sel, small: tag, minWidth: w) { value = $0; open = false })
+            }
         }
     }
 
@@ -115,14 +120,16 @@ struct PixelPicker: View {
     }
 }
 
+/// A popup anchored to a control (picker menu, calendar), drawn by `PixelMenuHost`.
 struct PixelMenuRequest {
     let id: UUID
     let anchor: Anchor<CGRect>
-    let options: [PixelPicker.Option]
-    let selected: String
-    let small: Bool
-    let select: (String) -> Void
+    /// Estimated size, used to flip the popup above the control when there is no room below.
+    let height: CGFloat
+    let width: CGFloat
     let close: () -> Void
+    /// Builds the popup; the argument is the control's width.
+    let content: (CGFloat) -> AnyView
 }
 
 struct PixelMenuKey: PreferenceKey {
@@ -137,15 +144,17 @@ struct PixelMenuHost: ViewModifier {
             GeometryReader { geo in
                 if let req {
                     let r = geo[req.anchor]
-                    let rowH: CGFloat = req.small ? 26 : 35
-                    let menuH = CGFloat(req.options.count) * rowH + CGFloat(max(0, req.options.count - 1)) * 2 + 28
-                    let up = r.maxY + 6 + menuH > geo.size.height && r.minY - 6 - menuH > 0
+                    let menuH = req.height
+                    let below = r.maxY + 6 + menuH <= geo.size.height
+                    let up = !below && r.minY - 6 - menuH > 0
                     ZStack(alignment: .topLeading) {
                         Color.black.opacity(0.001).contentShape(Rectangle()).onTapGesture { req.close() }
-                        PixelMenu(req: req, minWidth: r.width)
+                        req.content(r.width)
                             .fixedSize()
-                            .alignmentGuide(.leading) { _ in -min(r.minX, max(8, geo.size.width - 8 - max(r.width, 200))) }
-                            .alignmentGuide(.top) { d in up ? -(r.minY - 6 - d.height) : -(r.maxY + 6) }
+                            .alignmentGuide(.leading) { d in -min(r.minX, max(8, geo.size.width - 8 - max(r.width, d.width))) }
+                            .alignmentGuide(.top) { d in
+                                up ? -(r.minY - 6 - d.height) : below ? -(r.maxY + 6) : -max(8, min(r.maxY + 6, geo.size.height - 8 - d.height))
+                            }
                     }
                     .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
                 }
@@ -156,27 +165,39 @@ struct PixelMenuHost: ViewModifier {
 
 extension View {
     func pixelMenuHost() -> some View { modifier(PixelMenuHost()) }
+    /// `.picker-menu` frame: blue window, 4px edge, cream inner ring, 6px hard shadow.
+    func pixelMenuFrame() -> some View {
+        background(Theme.win)
+            .overlay(Rectangle().strokeBorder(Theme.frame, lineWidth: 3))
+            .overlay(Rectangle().inset(by: 3).strokeBorder(Theme.edge, lineWidth: 2))
+            .padding(4)
+            .background(Theme.edge)
+            .background(Rectangle().fill(Color.black.opacity(0.5)).offset(x: 6, y: 6))
+    }
 }
 
 /// `.picker-menu`: 4px edge border, cream frame, hard drop shadow; rows get a gold ▶ on hover, a ✔ when selected.
 struct PixelMenu: View {
-    let req: PixelMenuRequest
+    let options: [PixelPicker.Option]
+    let selected: String
+    let small: Bool
     let minWidth: CGFloat
+    let select: (String) -> Void
     @State private var hovered: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            ForEach(req.options) { o in
-                let sel = o.id == req.selected
+            ForEach(options) { o in
+                let sel = o.id == selected
                 let hi = hovered == o.id
-                Button { req.select(o.id) } label: {
+                Button { select(o.id) } label: {
                     HStack(spacing: 0) {
                         if let i = o.icon { PixelIcon(name: i).padding(.trailing, 8) }
                         Text(o.label).lineLimit(1).fixedSize()
                         Spacer(minLength: 0)
                         if sel { Text("\u{2714}\u{FE0E}").font(Theme.font(Theme.s)).padding(.leading, 16) }
                     }
-                    .font(Theme.font(req.small ? Theme.s : Theme.m))
+                    .font(Theme.font(small ? Theme.s : Theme.m))
                     .foregroundStyle(sel ? Theme.gold : Theme.ink)
                     .padding(.leading, 28).padding(.trailing, 12).padding(.vertical, 6)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,12 +214,7 @@ struct PixelMenu: View {
         }
         .padding(.horizontal, 8).padding(.vertical, 10)
         .frame(minWidth: max(0, minWidth - 8))
-        .background(Theme.win)
-        .overlay(Rectangle().strokeBorder(Theme.frame, lineWidth: 3))
-        .overlay(Rectangle().inset(by: 3).strokeBorder(Theme.edge, lineWidth: 2))
-        .padding(4)
-        .background(Theme.edge)
-        .background(Rectangle().fill(Color.black.opacity(0.5)).offset(x: 6, y: 6))
+        .pixelMenuFrame()
     }
 }
 
@@ -243,40 +259,52 @@ struct Bevel: View {
     }
 }
 
-/// Floating reward text ("+3 ATK +20 EXP") that rises and fades.
+/// Floating reward text ("+3 ATK +20 EXP"): rises 64px and fades in 12 hard steps over 1.2s (`floatUp`).
 struct FloatTextView: View {
     let event: FloatEvent
-    @State private var up = false
+    @State private var start = Date()
     var body: some View {
-        Text(event.text)
-            .pixelText(Theme.l, event.color)
-            .shadow(color: Theme.edge, radius: 0, x: 3, y: 3)
-            .offset(y: up ? -70 : 0)
-            .opacity(up ? 0 : 1)
-            .onAppear { withAnimation(.easeOut(duration: 1.1)) { up = true } }
-            .allowsHitTesting(false)
+        TimelineView(.periodic(from: start, by: 0.1)) { tl in
+            let k = min(12, floor(tl.date.timeIntervalSince(start) / 0.1)) / 12
+            ZStack {
+                // text-shadow: ±2px outline in the edge color
+                ForEach(0..<4, id: \.self) { i in
+                    Text(event.text).font(Theme.font(Theme.l)).foregroundStyle(Theme.edge)
+                        .offset(x: i % 2 == 0 ? 2 : -2, y: i < 2 ? 2 : -2)
+                }
+                Text(event.text).font(Theme.font(Theme.l)).foregroundStyle(event.color)
+            }
+            .fixedSize()
+            .offset(y: -64 * k)
+            .opacity(1 - k)
+        }
+        .allowsHitTesting(false)
     }
 }
 
-/// "LEVEL UP!" banner.
+/// "LEVEL UP!" window (`.levelup`): shown at full size at once, no zoom.
 struct LevelUpBanner: View {
     let event: LevelUpEvent
     let l: L10n
-    @State private var shown = false
     var body: some View {
-        VStack(spacing: 6) {
-            LayeredText(text: "LEVEL UP!")
-            Text("Lv.\(event.lv) · \(l.titleName(event.lv))").pixelText(Theme.m)
+        VStack(spacing: 0) {
+            LayeredText(text: "LEVEL UP!", layers: [(Theme.edge, 6), (Theme.goldDk, 3)])
+            Text("Lv.\(event.lv) · \(l.titleName(event.lv))").font(Theme.font(Theme.m)).foregroundStyle(Theme.ink)
+                .padding(.top, 12)
             if event.packs > 0 {
-                HStack(spacing: 6) { PixelIcon(name: "pack"); Text(l.t("pack.gain", ["n": event.packs])).pixelText(Theme.m, Theme.gold) }
+                HStack(spacing: 8) { PixelIcon(name: "pack"); Text(l.t("pack.gain", ["n": event.packs])) }
+                    .font(Theme.font(Theme.m)).foregroundStyle(Color(hex: "#e6c4ff"))
+                    .padding(.top, 12)
             }
         }
-        .padding(.horizontal, 28).padding(.vertical, 18)
-        .background(Theme.edge.opacity(0.85))
-        .overlay(Rectangle().strokeBorder(Theme.gold, lineWidth: 3))
-        .scaleEffect(shown ? 1 : 0.4)
-        .opacity(shown ? 1 : 0)
-        .onAppear { withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) { shown = true } }
+        .padding(.horizontal, 40).padding(.vertical, 26)
+        .background(Theme.win)
+        .overlay(Rings(rings: [(Theme.gold, 3), (Theme.edge, 3)]))
+        .padding(4).background(Theme.edge)
+        .background(Rectangle().fill(Color.black.opacity(0.5)).offset(x: 8, y: 8))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .offset(y: -40)
+        .transaction { $0.animation = nil }
         .allowsHitTesting(false)
     }
 }

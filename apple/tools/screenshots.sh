@@ -28,6 +28,7 @@ for lang in zh en; do
   done
 done
 shot zh-picker -HLDemo YES -HLLang zh -HLTab boss -HLPicker YES
+shot zh-calendar -HLDemo YES -HLLang zh -HLTab boss -HLCalendar YES
 shot zh-card -HLDemo YES -HLLang zh -HLTab armory -HLView YES
 shot zh-settings -HLDemo YES -HLLang zh -HLSettings YES
 WAIT=9 shot zh-packs -HLDemo YES -HLDemoPacks YES -HLLang zh -HLOpenPacks YES -HLAutoTear YES
