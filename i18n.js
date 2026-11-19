@@ -42,9 +42,6 @@ window.JQ_I18N = {
 
     'settings': '设置',
     'settings.lang': '语言',
-    'settings.data': '存档',
-    'settings.export': '导出存档',
-    'settings.import': '导入存档',
     'settings.close': '关闭',
 
     'add.ph': '今天要做什么？例如：投递 3 家公司 / 改简历项目经历',
@@ -127,13 +124,6 @@ window.JQ_I18N = {
     'round.oa': '笔试 / OA', 'round.phone': '电话面', 'round.r1': '一面', 'round.r2': '二面',
     'round.r3': '三面', 'round.final': '终面', 'round.hr': 'HR 面', 'round.other': '其他',
 
-    'import.title': '导入存档？',
-    'import.confirm': '导入的存档有 {t} 个任务、{b} 场 Boss 战，会覆盖当前的全部数据。',
-    'import.ok': '覆盖并导入',
-    'import.failTitle': '读取存档失败',
-    'import.fail': '读取存档失败：',
-    'import.bad': '格式不对',
-    'export.name': 'hireloot-存档',
 
     'cloud.title': '登录冒险',
     'cloud.account': '账号',
@@ -228,9 +218,6 @@ window.JQ_I18N = {
 
     'settings': 'Settings',
     'settings.lang': 'Language',
-    'settings.data': 'Save data',
-    'settings.export': 'Export save',
-    'settings.import': 'Import save',
     'settings.close': 'Close',
 
     'add.ph': 'What\'s the quest today? e.g. Apply to 3 companies',
@@ -313,13 +300,6 @@ window.JQ_I18N = {
     'round.oa': 'OA / Test', 'round.phone': 'Phone Screen', 'round.r1': 'Round 1', 'round.r2': 'Round 2',
     'round.r3': 'Round 3', 'round.final': 'Final', 'round.hr': 'HR', 'round.other': 'Other',
 
-    'import.title': 'Import save?',
-    'import.confirm': 'This save has {t} quests and {b} boss fights. It will replace all your current data.',
-    'import.ok': 'Replace and import',
-    'import.failTitle': 'Could not read save',
-    'import.fail': 'Could not read save: ',
-    'import.bad': 'wrong format',
-    'export.name': 'hireloot-save',
 
     'cloud.title': 'Sign in',
     'cloud.account': 'Account',
