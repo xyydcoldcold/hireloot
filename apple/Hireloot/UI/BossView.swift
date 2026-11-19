@@ -35,13 +35,13 @@ struct BossView: View {
                 HStack(alignment: .bottom, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) { label(l.t("boss.company")); PixelField(placeholder: l.t("boss.companyPh"), text: $company, maxLength: 80) }
                         .frame(minWidth: 200)
-                    VStack(alignment: .leading, spacing: 4) { label(l.t("boss.round")); PixelPicker(options: PixelPicker.rounds(l), value: $round) }
+                    VStack(alignment: .leading, spacing: 4) { label(l.t("boss.round")); PixelPicker(options: PixelPicker.rounds(l), value: $round, startOpen: UserDefaults.standard.bool(forKey: "HLPicker")) }
                     VStack(alignment: .leading, spacing: 4) { label(l.t("boss.date")); dateField }
                 }
                 VStack(alignment: .leading, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) { label(l.t("boss.company")); PixelField(placeholder: l.t("boss.companyPh"), text: $company, maxLength: 80) }
                     HStack(alignment: .bottom, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) { label(l.t("boss.round")); PixelPicker(options: PixelPicker.rounds(l), value: $round) }
+                        VStack(alignment: .leading, spacing: 4) { label(l.t("boss.round")); PixelPicker(options: PixelPicker.rounds(l), value: $round, startOpen: UserDefaults.standard.bool(forKey: "HLPicker")) }
                         VStack(alignment: .leading, spacing: 4) { label(l.t("boss.date")); dateField }
                         Spacer(minLength: 0)
                     }

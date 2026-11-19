@@ -174,7 +174,7 @@ struct PixelMenu: View {
                         if let i = o.icon { PixelIcon(name: i).padding(.trailing, 8) }
                         Text(o.label).lineLimit(1).fixedSize()
                         Spacer(minLength: 0)
-                        if sel { Text("✔").font(Theme.font(Theme.s)).padding(.leading, 16) }
+                        if sel { Text("\u{2714}\u{FE0E}").font(Theme.font(Theme.s)).padding(.leading, 16) }
                     }
                     .font(Theme.font(req.small ? Theme.s : Theme.m))
                     .foregroundStyle(sel ? Theme.gold : Theme.ink)

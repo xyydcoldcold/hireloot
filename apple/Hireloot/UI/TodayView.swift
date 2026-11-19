@@ -65,7 +65,7 @@ struct TodayView: View {
         }
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 10) {
-                PixelField(placeholder: l.t("add.ph"), text: $text, onSubmit: submit).frame(minWidth: 260)
+                PixelField(placeholder: l.t("add.ph"), text: $text, onSubmit: submit).frame(minWidth: 260, idealWidth: 260, maxWidth: .infinity)
                 PixelPicker(options: PixelPicker.categories(l), value: $category, minWidth: 168, startOpen: UserDefaults.standard.bool(forKey: "HLPicker"))
                 Button(l.t("add.submit"), action: submit).buttonStyle(.pixelPrimary)
             }
@@ -188,7 +188,7 @@ struct CheckBox: View {
             ZStack {
                 done ? Theme.greenDk : hover ? Color(hex: "#20255a") : Theme.deep
                 InsetShade(width: 3, opacity: done ? 0.3 : 0.45, bottomRight: done)
-                if done { Text("✔").font(Theme.font(Theme.m)).foregroundStyle(.white) }
+                if done { Text("\u{2714}\u{FE0E}").font(Theme.font(Theme.m)).foregroundStyle(.white) }
             }
             .frame(width: 26, height: 26)
             .padding(3)

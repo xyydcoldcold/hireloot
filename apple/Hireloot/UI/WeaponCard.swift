@@ -150,11 +150,12 @@ struct CardFront: View {
                     .padding(.horizontal, 6).frame(height: 18)
                     .background(rc)
                     .padding(2).background(Theme.edge)
-                Spacer(minLength: 4)
+                    .fixedSize()
+                Spacer(minLength: 0)
                 Text(locked ? "???" : l.t("card.atk", ["n": Weapons.atk(of: weapon.id, count: n)]))
                     .font(Theme.font(Theme.s)).foregroundStyle(Theme.ink)
                     .shadow(color: Theme.edge, radius: 0, x: 2, y: 2)
-                    .lineLimit(1)
+                    .fixedSize()
             }
             .padding(.horizontal, 2).padding(.top, 2).padding(.bottom, 4)
 
