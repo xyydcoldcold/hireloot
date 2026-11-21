@@ -52,6 +52,22 @@ jobs:
       - name: iPhone screenshots
         run: bash apple/tools/screenshots.sh build/ios/Build/Products/Debug-iphonesimulator/Hireloot.app shots
 
+      - name: App Store screenshots (full size)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[store]')
+        run: bash apple/tools/store-shots.sh build/ios/Build/Products/Debug-iphonesimulator/Hireloot.app store-shots
+
+      - name: Save App Store screenshots to the branch
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[store]')
+        run: |
+          mkdir -p apple/store/raw
+          cp store-shots/*.png apple/store/raw/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apple/store/raw
+          git commit -m "Update raw App Store screenshots [skip ci]" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
       - name: Mac screenshot
         continue-on-error: true
         run: bash apple/tools/mac-screenshot.sh build/mac/Build/Products/Debug/Hireloot.app shots
