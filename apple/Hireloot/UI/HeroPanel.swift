@@ -25,7 +25,7 @@ struct HeroPanel: View {
             }
             .padding(.bottom, 14)
             TitleRibbon(text: l.titleName(st.lv))
-                .padding(.bottom, 12)
+                .padding(.bottom, 18)
             HStack {
                 Text("EXP"); Spacer(); Text("\(st.cur) / \(st.need)")
             }
@@ -129,17 +129,54 @@ struct HeroPanel: View {
     }
 }
 
+// Mirrors `.title` in style.css: a gold banner with notched ends
+// (clip-path polygon, 14px notches), light/dark inset bands top and bottom,
+// and a ✦ on each side of the text. Long titles drop to the small size
+// (`.title.tight`) instead of wrapping.
 struct TitleRibbon: View {
     let text: String
     var body: some View {
-        Text(text)
-            .pixelText(Theme.m, Theme.edge, shadow: false)
-            .lineLimit(1).minimumScaleFactor(0.66)
-            .padding(.horizontal, 18).padding(.vertical, 4)
-            .frame(maxWidth: .infinity)
-            .background(Theme.gold)
-            .overlay(Rectangle().strokeBorder(Theme.edge, lineWidth: 3))
-            .overlay(alignment: .bottom) { Theme.goldDk.frame(height: 3).padding(.horizontal, 3).padding(.bottom, 3) }
+        ViewThatFits(in: .horizontal) {
+            label(tight: false)
+            label(tight: true)
+        }
+        .frame(maxWidth: .infinity)
+        .background {
+            VStack(spacing: 0) {
+                Color(hex: "#ffe79a").frame(height: 3)
+                Theme.gold
+                Theme.goldDk.frame(height: 4)
+            }
+        }
+        .clipShape(RibbonShape(notch: 14))
+    }
+
+    private func label(tight: Bool) -> some View {
+        let gap: CGFloat = tight ? 5 : 8
+        return HStack(spacing: 0) {
+            Text("✦").pixelText(Theme.s, Theme.goldDk, shadow: false).padding(.horizontal, gap)
+            Text(text).pixelText(tight ? Theme.s : Theme.m, Theme.edge, shadow: false)
+            Text("✦").pixelText(Theme.s, Theme.goldDk, shadow: false).padding(.horizontal, gap)
+        }
+        .lineLimit(1).fixedSize()
+        .padding(.horizontal, 22)
+        .padding(.top, tight ? 9 : 6).padding(.bottom, tight ? 11 : 8)
+    }
+}
+
+/// polygon(0 0, 100% 0, 100%-n 50%, 100% 100%, 0 100%, n 50%)
+struct RibbonShape: Shape {
+    var notch: CGFloat
+    func path(in r: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: r.minX, y: r.minY))
+        p.addLine(to: CGPoint(x: r.maxX, y: r.minY))
+        p.addLine(to: CGPoint(x: r.maxX - notch, y: r.midY))
+        p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
+        p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
+        p.addLine(to: CGPoint(x: r.minX + notch, y: r.midY))
+        p.closeSubpath()
+        return p
     }
 }
 
