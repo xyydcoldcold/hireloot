@@ -68,6 +68,19 @@ jobs:
           git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
+      - name: Mac App Store screenshots
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[macstore]')
+        run: |
+          bash apple/tools/mac-store-shots.sh build/mac/Build/Products/Debug/Hireloot.app mac-store
+          mkdir -p apple/store/raw
+          cp mac-store/*.png apple/store/raw/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apple/store/raw
+          git commit -m "Update raw Mac App Store screenshots [skip ci]" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
       - name: Mac screenshot
         continue-on-error: true
         run: bash apple/tools/mac-screenshot.sh build/mac/Build/Products/Debug/Hireloot.app shots
