@@ -64,6 +64,7 @@ function html(device, title, sub, img) {
 
 // Mac: raw images are 1x window captures; drawn at exactly 2x with nearest-neighbour scaling.
 function macHtml(W, H, title, sub, img) {
+  const png = Buffer.from(img.split(',')[1], 'base64'), iw = png.readUInt32BE(16), ih = png.readUInt32BE(20);
   return `<!doctype html><html><head><style>
   @font-face { font-family: P; src: url(${FONT}) format('woff2'); }
   * { box-sizing: border-box; margin: 0; }
@@ -87,15 +88,7 @@ function macHtml(W, H, title, sub, img) {
   <div class="spark" style="left:200px; top:120px"></div>
   <div class="spark" style="right:220px; top:200px; transform: scale(.7)"></div>
   <h1>${title}</h1><p>${sub}</p>
-  <div class="frame"><div class="win" id="win"><img id="shot" src="${img}"></div></div>
-  <script>
-    const im = document.getElementById('shot');
-    // always exactly 2x; if the window is too tall, crop its bottom edge instead of shrinking
-    const fit = () => { const w = document.getElementById('win'), room = ${H} - w.parentNode.offsetTop - 60;
-      im.style.width = im.naturalWidth * 2 + 'px'; im.style.height = im.naturalHeight * 2 + 'px';
-      w.style.height = Math.min(im.naturalHeight * 2 + 16, room) + 'px'; };
-    im.complete ? fit() : im.onload = fit;
-  </script>
+  <div class="frame"><div class="win" style="max-height:${H - 340}px"><img src="${img}" style="width:${iw * 2}px; height:${ih * 2}px"></div></div>
   </body></html>`;
 }
 
