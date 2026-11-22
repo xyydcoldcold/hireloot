@@ -24,11 +24,14 @@ shot() {
   "$BIN" -HLDemo YES -HLWindowSize 1120x700 -ApplePersistenceIgnoreState YES "$@" &
   local PID=$!
   sleep "${WAIT:-8}"
-  local WID; WID=$(/tmp/winid $PID || true)
+  local WID="" i
+  for i in 1 2 3 4 5 6; do WID=$(/tmp/winid $PID || true); [ -n "$WID" ] && break; sleep 3; done
   if [ -n "$WID" ]; then screencapture -x -o -l"$WID" "$OUT/mac-$name.png"; echo "shot mac-$name"
   else echo "no window for $name"; fi
   kill $PID || true; sleep 1
 }
+# warm-up launch: the very first launch on a fresh runner can be slow to show its window
+WAIT=12 shot "warmup" -HLLang en -HLTab today; rm -f "$OUT/mac-warmup.png"
 for lang in zh en; do
   shot "$lang-today"  -HLLang $lang -HLTab today
   shot "$lang-boss"   -HLLang $lang -HLTab boss
