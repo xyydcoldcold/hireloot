@@ -16,7 +16,6 @@ struct BossView: View {
             VStack(alignment: .leading, spacing: 14) {
                 PanelTitle(text: l.t("boss.formTitle"))
                 form(l)
-                Text(l.t("boss.rule")).pixelText(Theme.s, Theme.muted, shadow: false).fixedSize(horizontal: false, vertical: true)
             }
             .pixelWindow()
 

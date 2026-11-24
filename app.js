@@ -596,10 +596,8 @@
   let suggestTimer = null, suggestion = null;
   function showHint() {
     const k = sel.dataset.value;
-    const sug = suggestion && suggestion !== k && CATEGORIES[suggestion]
+    hint.innerHTML = suggestion && suggestion !== k && CATEGORIES[suggestion]
       ? `<button type="button" class="chip" data-act="use-suggest">${icon(CATEGORIES[suggestion].icon)}${esc(t('add.suggest', { c: catLabel(suggestion) }))}</button>` : '';
-    const desc = k === 'none' ? '' : `<span>${esc(t('add.hint', { label: catLabel(k), desc: t('desc.' + k), reward: rewardText(CATEGORIES[k].reward) }))}</span>`;
-    hint.innerHTML = desc + sug;
   }
   input.addEventListener('input', () => {
     clearTimeout(suggestTimer);
