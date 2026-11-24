@@ -85,12 +85,7 @@ struct TodayView: View {
     }
 
     @ViewBuilder private func hint(_ l: L10n) -> some View {
-        let c = Rules.category(category)
         HStack(spacing: 8) {
-            if category != "none" {
-                Text(l.t("add.hint", ["label": l.catLabel(category), "desc": l.t("desc." + category), "reward": l.rewardText(c.reward)]))
-                    .pixelText(Theme.s, Theme.muted, shadow: false)
-            }
             if let s = suggestion, s != category {
                 Button { category = s } label: {
                     HStack(spacing: 6) {
