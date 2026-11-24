@@ -61,6 +61,18 @@ struct RootView: View {
         }
         .onAppear {
             cloud.start()
+            #if os(macOS)
+            // Screenshot tooling: -HLWindowSize 1120x700 sets the window's content size.
+            if let v = UserDefaults.standard.string(forKey: "HLWindowSize") {
+                let p = v.split(separator: "x").compactMap { Double($0) }
+                if p.count == 2 {
+                    DispatchQueue.main.async {
+                        NSApp.windows.first?.setContentSize(NSSize(width: p[0], height: p[1]))
+                        NSApp.windows.first?.setFrameOrigin(NSPoint(x: 20, y: 60))
+                    }
+                }
+            }
+            #endif
             if UserDefaults.standard.bool(forKey: "HLOpenPacks") { store.packStageOpen = true }
             if UserDefaults.standard.bool(forKey: "HLView"), let id = store.state.armory.equipped {
                 ui.viewing = Weapons.all.first { $0.id == id }
